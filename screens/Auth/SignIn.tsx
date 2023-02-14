@@ -7,11 +7,7 @@ import {
 } from "expo-auth-session";
 import { useAuthAccessToken } from "../../contexts/AuthContext";
 import { REDDIT_CLIENT_ID, REDDIT_REDIRECT_URI } from "@env";
-import {
-  Layout,
-  Text,
-  Button,
-} from "@ui-kitten/components";
+import { Layout, Text, Button } from "@ui-kitten/components";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -22,7 +18,7 @@ const discovery = {
 };
 
 export function SignIn() {
-  const { setAccessToken } = useAuthAccessToken();
+  const { signIn } = useAuthAccessToken();
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Token,
@@ -38,7 +34,7 @@ export function SignIn() {
   React.useEffect(() => {
     if (response?.type === "success") {
       const { access_token } = response.params;
-      setAccessToken(access_token);
+      signIn(access_token);
     }
   }, [response]);
 

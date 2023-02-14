@@ -3,12 +3,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type AuthAccessTokenContent = {
   accessToken: string;
-  setAccessToken: React.Dispatch<React.SetStateAction<string>>;
+  //setAccessToken: React.Dispatch<React.SetStateAction<string>>;
+  signIn: (accessToken: string) => void;
+  signOut: () => void;
 };
 
 export const AuthContext = createContext<AuthAccessTokenContent>({
   accessToken: "",
-  setAccessToken: () => {},
+  //setAccessToken: () => {},
+  signIn: () => {},
+  signOut: () => {},
 });
 
 export const useAuthAccessToken = () => useContext(AuthContext);
@@ -35,7 +39,6 @@ export const AuthProvider = ({ children }: any) => {
       setLoaded(true);
     }
   }
-  //TODO: Use sign in and sign out functions
   const signIn = async (accessToken: string) => {
     try {
       await AsyncStorage.setItem("accessToken", accessToken);
@@ -55,7 +58,7 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   return (
-    <AuthContext.Provider value={{ accessToken, setAccessToken }}>
+    <AuthContext.Provider value={{ accessToken, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

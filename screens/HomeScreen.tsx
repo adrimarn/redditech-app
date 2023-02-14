@@ -2,9 +2,10 @@ import React, { useEffect } from "react";
 import { Layout, Text } from "@ui-kitten/components";
 import { ApiService, UserDataType } from "../services/apiService";
 import { useAuthAccessToken } from "../contexts/AuthContext";
+import { Button } from "react-native";
 
 export const HomeScreen = () => {
-  const { accessToken } = useAuthAccessToken();
+  const { accessToken, signOut } = useAuthAccessToken();
   const [userData, setUserData] = React.useState<UserDataType>();
   const [loading, setLoading] = React.useState<boolean>(true);
 
@@ -30,6 +31,7 @@ export const HomeScreen = () => {
         <>
           <Welcome />
           <Text>You are successfully logged in!</Text>
+          <Button title={"Logout"} onPress={signOut} />
         </>
       )}
     </Layout>
