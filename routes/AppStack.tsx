@@ -1,13 +1,15 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
 import { HomeScreen } from "../screens/HomeScreen";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Subreddits } from "../screens/Subreddits";
 
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export const AppStack = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home Screen" component={HomeScreen} />
-    </Stack.Navigator>
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Feed" component={Subreddits} />
+    </Tab.Navigator>
   );
 };
