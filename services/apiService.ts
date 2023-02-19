@@ -22,7 +22,8 @@ const fetchData = async (url: string, token: string): Promise<any> => {
     Toast.show({
       type: "error",
       text1: "An error has occurred",
-      text2: errorMessage,
+      text2: "Please try again later.",
+      position: "bottom",
     });
     throw new Error(errorMessage);
   }
@@ -37,6 +38,16 @@ export type UserDataType = {
   };
 };
 
+export type PostType = {
+  id: string;
+  title: string;
+  author: string;
+  subreddit_name_prefixed: string;
+  thumbnail: string;
+  url: string;
+  created_utc: number;
+};
+
 /**
  * Service that interacts with a Reddit API.
  */
@@ -49,5 +60,30 @@ export const ApiService = {
   getUser: async (token: string): Promise<UserDataType> => {
     const url = "https://oauth.reddit.com/api/v1/me?raw_json=1";
     return await fetchData(url, token);
+  },
+
+  /**
+   * Gets the user's subscribed posts using the provided token.
+   * @param token The token to use for authentication.
+   * @param limit The maximum number of posts to return.
+   * @returns A Promise that resolves to an array of subscribed posts.
+   */
+  getSubscribedPosts: async (
+    token: string,
+    limit: number = 25
+  ): Promise<PostType[]> => {
+    const url = `https://oauth.reddit.com/subreddits/mine/subscriber?limit=${limit}`;
+    const data = await fetchData(url, token);
+    const subreddits = data.data.children.map(
+      (child: any) => child.data.display_name
+    );
+    const posts = await Promise.all(
+      subreddits.map(async (subreddit: string) => {
+        const postsUrl = `https://oauth.reddit.com/r/${subreddit}/new?limit=${limit}`;
+        const postsData = await fetchData(postsUrl, token);
+        return postsData.data.children.map((child: any) => child.data);
+      })
+    );
+    return posts.flat();
   },
 };

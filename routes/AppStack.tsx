@@ -6,12 +6,10 @@ import Profile from "../screens/Profile";
 
 const Tab = createBottomTabNavigator();
 
-export const AppStack = () => {
-  return (
+export const AppStack = () => (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Feed" component={Feed} />
       <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   );
-};

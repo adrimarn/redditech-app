@@ -8,6 +8,7 @@ import {
 import { useAuthAccessToken } from "../../contexts/AuthContext";
 import { REDDIT_CLIENT_ID, REDDIT_REDIRECT_URI } from "@env";
 import { Layout, Text, Button } from "@ui-kitten/components";
+import Toast from "react-native-toast-message";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -35,6 +36,13 @@ export function SignIn() {
     if (response?.type === "success") {
       const { access_token } = response.params;
       signIn(access_token);
+    } else if (response?.type === "error") {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Something went wrong",
+        position: "bottom",
+      });
     }
   }, [response]);
 

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type AuthAccessTokenContent = {
@@ -25,7 +31,7 @@ export const AuthProvider = ({ children }: any) => {
     if (!accessToken) {
       loadAccessToken();
     }
-  }, [accessToken]);
+  }, []);
 
   async function loadAccessToken(): Promise<void> {
     try {
@@ -39,23 +45,23 @@ export const AuthProvider = ({ children }: any) => {
       setLoaded(true);
     }
   }
-  const signIn = async (accessToken: string) => {
+  const signIn = useCallback(async (accessToken: string) => {
     try {
       await AsyncStorage.setItem("accessToken", accessToken);
       setAccessToken(accessToken);
     } catch (e) {
       console.log(e);
     }
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       await AsyncStorage.removeItem("accessToken");
       setAccessToken("");
     } catch (e) {
       console.log(e);
     }
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ accessToken, signIn, signOut }}>
