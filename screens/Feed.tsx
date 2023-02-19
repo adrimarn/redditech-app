@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { View, Text } from "react-native";
 
 
-export const Subreddits = () => {
+export const Feed = () => {
   
   return (
     <View>
-     <Text>Subs</Text>
+     <Text>Feed</Text>
     </View>
   );
 };

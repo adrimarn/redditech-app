@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
 import { ApiService, UserDataType } from "../services/apiService";
-import { View, Image, StyleSheet } from "react-native";
-import {
-  Layout,
-  Text,
-  Avatar,
-  Divider,
-  useTheme,
-  Button,
-} from "@ui-kitten/components";
+import { Image, StyleSheet } from "react-native";
+import { Layout, Text, Divider, useTheme, Button } from "@ui-kitten/components";
 
 const UserProfile = () => {
   const { accessToken } = useAuthAccessToken();
@@ -54,25 +47,24 @@ const UserProfile = () => {
   });
 
   React.useEffect(() => {
-    ApiService.getUser(accessToken).then((res) => {
+    async function fetchUserData() {
+      const res = await ApiService.getUser(accessToken);
       setUserData(res);
-    });
-  }, [accessToken]);
+    }
+    fetchUserData();
+  }, []);
 
   return (
     <Layout style={styles.container}>
       {userData && (
         <>
-          <Avatar source={{ uri: userData.icon_img }} style={styles.avatar} />
+          <Image source={{ uri: userData.icon_img }} style={styles.avatar} />
           <Text style={styles.name}>{userData.name}</Text>
           <Divider style={styles.divider} />
           <Text style={styles.description}>
             {userData.subreddit.public_description}
           </Text>
-          <Button
-            style={styles.editButton}
-            size="large"
-          >
+          <Button style={styles.editButton} size="large">
             Edit
           </Button>
         </>
