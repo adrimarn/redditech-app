@@ -48,6 +48,22 @@ export type PostType = {
   created_utc: number;
 };
 
+export type dataInfoSubbredit = {
+  data: {
+    title: string;
+    subscribers: string;
+    public_description: string;
+    header_img: string;
+  }
+}
+
+export type SubRedditInformation = {
+  data: {
+    after: string;
+    children: dataInfoSubbredit[]
+  }
+};
+
 /**
  * Service that interacts with a Reddit API.
  */
@@ -95,5 +111,17 @@ export const ApiService = {
     } catch (error) {
       return false;
     }
+  },
+  getSubReddit: async (subredditName: string) => {
+    const url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const res = await response.json();
+    console.log(res);
+    return res;
   },
 };

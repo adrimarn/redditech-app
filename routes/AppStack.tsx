@@ -6,6 +6,7 @@ import {
 } from "@react-navigation/bottom-tabs";
 import { Feed } from "../screens/Feed";
 import Profile from "../screens/Profile";
+import Search from "../screens/Search";
 import {
   BottomNavigation,
   BottomNavigationTab,
@@ -28,6 +29,12 @@ const UserIcon: RenderProp<Partial<ImageProps>> = (props) => (
   <Icon {...props} name="person-outline" />
 );
 
+
+const SearchIcon: RenderProp<Partial<ImageProps>> = (props) => (
+  <Icon {...props} name="search-outline" />
+);
+
+
 export const AppStack = () => (
   <Tab.Navigator
     tabBar={(props) => <BottomTabBar {...props} />}
@@ -36,6 +43,7 @@ export const AppStack = () => (
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="Feed" component={Feed} />
     <Tab.Screen name="Profile" component={Profile} />
+    <Tab.Screen name="Search" component={Search} />
   </Tab.Navigator>
 );
 
@@ -47,5 +55,6 @@ const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, state }) => (
     <BottomNavigationTab icon={HomeIcon} />
     <BottomNavigationTab icon={FeedIcon} />
     <BottomNavigationTab icon={UserIcon} />
+    <BottomNavigationTab icon={SearchIcon} />
   </BottomNavigation>
 );
