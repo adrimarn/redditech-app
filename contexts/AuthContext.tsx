@@ -6,6 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ApiService } from "../services/apiService";
 
 export type AuthAccessTokenContent = {
   accessToken: string;
@@ -36,8 +37,12 @@ export const AuthProvider = ({ children }: any) => {
   async function loadAccessToken(): Promise<void> {
     try {
       const accessToken = await AsyncStorage.getItem("accessToken");
+
       if (accessToken) {
-        setAccessToken(accessToken);
+        const tokenIsValid = await ApiService.validateToken(accessToken);
+        if (tokenIsValid) {
+          setAccessToken(accessToken);
+        }
       }
     } catch (e) {
       console.log(e);
@@ -45,6 +50,8 @@ export const AuthProvider = ({ children }: any) => {
       setLoaded(true);
     }
   }
+
+  //
   const signIn = useCallback(async (accessToken: string) => {
     try {
       await AsyncStorage.setItem("accessToken", accessToken);

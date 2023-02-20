@@ -86,4 +86,14 @@ export const ApiService = {
     );
     return posts.flat();
   },
+
+  validateToken: async (token: string): Promise<boolean> => {
+    const url = "https://oauth.reddit.com/api/v1/me?raw_json=1";
+    try {
+      const response = await fetchData(url, token);
+      return response.status !== 401;
+    } catch (error) {
+      return false;
+    }
+  },
 };
