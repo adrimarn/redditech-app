@@ -38,6 +38,15 @@ export type UserDataType = {
   };
 };
 
+export type UserPreferencesDataType = {
+  accept_pms: string;
+  email_messages: boolean;
+  activity_relevant_ads: boolean;
+  nightmode: boolean;
+  mark_messages_read: boolean;
+  highlight_controversial: boolean;
+};
+
 export type PostType = {
   id: string;
   title: string;
@@ -59,6 +68,13 @@ export const ApiService = {
    */
   getUser: async (token: string): Promise<UserDataType> => {
     const url = "https://oauth.reddit.com/api/v1/me?raw_json=1";
+    return await fetchData(url, token);
+  },
+
+  getUserPreferences: async (
+    token: string
+  ): Promise<UserPreferencesDataType> => {
+    const url = "https://oauth.reddit.com/api/v1/me/prefs?raw_json=1";
     return await fetchData(url, token);
   },
 
@@ -98,35 +114,28 @@ export const ApiService = {
   },
 
   /**
-   * Edits the user's username and description using the provided token.
+   * Updates the user's preferences using the provided token and preferences.
    * @param token The token to use for authentication.
-   * @param newUsername The new username to set.
-   * @param newDescription The new description to set.
-   * @returns A Promise that resolves to the updated user data.
+   * @param preferences The preferences to update.
+   * @returns A Promise that resolves to the updated preferences.
    */
-  editUser: async (
+  updateUserPreferences: async (
     token: string,
-    newUsername: string,
-    newDescription: string
-  ): Promise<UserDataType> => {
-    const url = "https://oauth.reddit.com/api/v1/me";
-    const data = {
-      name: newUsername,
-      subreddit: {
-        public_description: newDescription,
-      },
-    };
-    console.log("Data:", data)
-    const response = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const errorMessage = `Error editing user data: ${response.statusText}`;
+    preferences: UserPreferencesDataType
+  ): Promise<UserPreferencesDataType> => {
+    const url = "https://oauth.reddit.com/api/v1/me/prefs";
+    try {
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${token}`,
+        },
+        body: JSON.stringify(preferences),
+      });
+      return response.json();
+    } catch (error) {
+      const errorMessage = `Error patching data from ${url}: ${error}`;
       Toast.show({
         type: "error",
         text1: "An error has occurred",
@@ -135,6 +144,5 @@ export const ApiService = {
       });
       throw new Error(errorMessage);
     }
-    return response.json();
   },
 };
