@@ -96,4 +96,45 @@ export const ApiService = {
       return false;
     }
   },
+
+  /**
+   * Edits the user's username and description using the provided token.
+   * @param token The token to use for authentication.
+   * @param newUsername The new username to set.
+   * @param newDescription The new description to set.
+   * @returns A Promise that resolves to the updated user data.
+   */
+  editUser: async (
+    token: string,
+    newUsername: string,
+    newDescription: string
+  ): Promise<UserDataType> => {
+    const url = "https://oauth.reddit.com/api/v1/me";
+    const data = {
+      name: newUsername,
+      subreddit: {
+        public_description: newDescription,
+      },
+    };
+    console.log("Data:", data)
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorMessage = `Error editing user data: ${response.statusText}`;
+      Toast.show({
+        type: "error",
+        text1: "An error has occurred",
+        text2: "Please try again later.",
+        position: "bottom",
+      });
+      throw new Error(errorMessage);
+    }
+    return response.json();
+  },
 };

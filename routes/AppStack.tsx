@@ -13,19 +13,20 @@ import {
 } from "@ui-kitten/components";
 import { RenderProp } from "@ui-kitten/components/devsupport";
 import { ImageProps } from "react-native";
+import { Feather } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 
 const HomeIcon: RenderProp<Partial<ImageProps>> = (props) => (
-  <Icon {...props} name="home-outline" />
+  <Feather {...props} name="home" size={24} color="#FD9544" />
 );
 
 const FeedIcon: RenderProp<Partial<ImageProps>> = (props) => (
-  <Icon {...props} name="compass-outline" />
+  <Feather {...props} name="compass" size={24} color="#FD9544" />
 );
 
 const UserIcon: RenderProp<Partial<ImageProps>> = (props) => (
-  <Icon {...props} name="person-outline" />
+  <Feather {...props} name="user" size={24} color="#FD9544" />
 );
 
 export const AppStack = () => (

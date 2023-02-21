@@ -1,12 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
 import { ApiService, UserDataType } from "../services/apiService";
-import { Image, StyleSheet } from "react-native";
-import { Layout, Text, Divider, useTheme, Button } from "@ui-kitten/components";
+import { Image, StyleSheet, View, Modal } from "react-native";
+import {
+  Layout,
+  Text,
+  Divider,
+  useTheme,
+  Button,
+  Input,
+} from "@ui-kitten/components";
+import { Feather } from "@expo/vector-icons";
 
 const UserProfile = () => {
   const { accessToken } = useAuthAccessToken();
   const [userData, setUserData] = React.useState<UserDataType>();
+  const [username, setUsername] = React.useState<string | undefined>();
+  const [description, setDescription] = React.useState<string | undefined>();
+  const [isOnEdit, setisOnEdit] = React.useState(false);
   const theme = useTheme();
 
   const styles = StyleSheet.create({
@@ -54,6 +65,38 @@ const UserProfile = () => {
     fetchUserData();
   }, []);
 
+  // Les six paramètres utilisateur que vous souhaitez modifier
+  const userPreferences = [
+    "threaded_messages",
+    "email_messages",
+    "show_link_flair",
+    "nightmode",
+    "min_comment_score",
+    "highlight_controversial",
+  ];
+
+    const [modalVisible, setModalVisible] = React.useState(false);
+
+    const toggleModal = () => {
+      setModalVisible(!modalVisible);
+    };
+
+    const handleSave = () => {
+      // Code pour enregistrer les préférences utilisateur modifiées
+      toggleModal();
+    };
+
+    // const renderPreferences = () => {
+    //   return userPreferences.map((preference) => (
+    //     // Remplacez `PreferenceItem` par un composant personnalisé pour chaque paramètre utilisateur
+    //     //<PreferenceItem key={preference} preference={preference} />
+    //   ));
+    // };
+    // const openModal = () => {
+    //   setisOnEdit(!isOnEdit);
+    //   setUsername(userData?.name);
+    //   setDescription(userData?.subreddit.public_description);
+    // };
   return (
     <Layout style={styles.container}>
       {userData && (
@@ -67,6 +110,16 @@ const UserProfile = () => {
           <Button style={styles.editButton} size="large">
             Edit
           </Button>
+          <Button
+            accessoryLeft={(props) => (
+              <Feather name="settings" size={24} color="black" />
+            )}
+            onPress={toggleModal} style={{position:"absolute", top:"10%"}}
+          ></Button>
+          <Modal visible={modalVisible}>
+            <Text category="h4">Modifier les préférences</Text>
+            <Button onPress={handleSave}>Enregistrer</Button>
+          </Modal>
         </>
       )}
     </Layout>
