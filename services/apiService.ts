@@ -54,15 +54,34 @@ export type dataInfoSubbredit = {
     subscribers: string;
     public_description: string;
     header_img: string;
-  }
-}
+    user_is_subscriber: string;
+    id: string;
+  };
+};
 
 export type SubRedditInformation = {
   data: {
     after: string;
-    children: dataInfoSubbredit[]
-  }
+    children: dataInfoSubbredit[];
+  };
 };
+
+export interface RedditApiResponse {
+  kind: string;
+  data: {
+    after: string | null;
+    dist: number;
+    modhash: string | null;
+    geo_filter: string;
+    children: Array<{
+      kind: string;
+      data: {
+        name: string;
+        display_name: string;
+      };
+    }>;
+  };
+}
 
 /**
  * Service that interacts with a Reddit API.
@@ -120,6 +139,32 @@ export const ApiService = {
         "Content-Type": "application/json",
       },
     });
+    const res = await response.json();
+    console.log(res);
+    return res;
+  },
+
+  getSubscridedSubReddit: async (token: string) => {
+    const url = "https://oauth.reddit.com/subreddits/mine/subscriber";
+    const data = await fetchData(url, token);
+
+    return data;
+  },
+
+  subscribeToSubreddit: async (subredditName: string, accessToken: string) => {
+    console.log(subredditName);
+    const url = `https://oauth.reddit.com/r/${subredditName}/api/subscribe`;
+    const data = { action: "sub" };
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    };
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+    });
+
     const res = await response.json();
     console.log(res);
     return res;
