@@ -14,6 +14,7 @@ import {
 } from "@ui-kitten/components";
 import { RenderProp } from "@ui-kitten/components/devsupport";
 import { ImageProps } from "react-native";
+import Posts from "../screens/Posts";
 
 const Tab = createBottomTabNavigator();
 
@@ -29,11 +30,13 @@ const UserIcon: RenderProp<Partial<ImageProps>> = (props) => (
   <Icon {...props} name="person-outline" />
 );
 
-
 const SearchIcon: RenderProp<Partial<ImageProps>> = (props) => (
   <Icon {...props} name="search-outline" />
 );
 
+// const PostsIcon: RenderProp<Partial<ImageProps>> = (props) => (
+//   <Icon {...props} name="message-square-outline" />
+// );
 
 export const AppStack = () => (
   <Tab.Navigator
@@ -44,6 +47,7 @@ export const AppStack = () => (
     <Tab.Screen name="Feed" component={Feed} />
     <Tab.Screen name="Profile" component={Profile} />
     <Tab.Screen name="Search" component={Search} />
+    <Tab.Screen name="Posts" component={Posts} />
   </Tab.Navigator>
 );
 
@@ -56,5 +60,6 @@ const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, state }) => (
     <BottomNavigationTab icon={FeedIcon} />
     <BottomNavigationTab icon={UserIcon} />
     <BottomNavigationTab icon={SearchIcon} />
+
   </BottomNavigation>
 );
