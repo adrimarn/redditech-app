@@ -42,10 +42,11 @@ export type PostType = {
   id: string;
   title: string;
   author: string;
-  subreddit_name_prefixed: string;
+  subreddit?: string;
+  subreddit_name_prefixed?: string;
   thumbnail: string;
   url: string;
-  created_utc: number;
+  created_utc: Date;
 };
 
 export type dataInfoSubbredit = {
@@ -54,14 +55,14 @@ export type dataInfoSubbredit = {
     subscribers: string;
     public_description: string;
     header_img: string;
-  }
-}
+  };
+};
 
 export type SubRedditInformation = {
   data: {
     after: string;
-    children: dataInfoSubbredit[]
-  }
+    children: dataInfoSubbredit[];
+  };
 };
 
 /**
@@ -88,19 +89,53 @@ export const ApiService = {
     token: string,
     limit: number = 25
   ): Promise<PostType[]> => {
-    const url = `https://oauth.reddit.com/subreddits/mine/subscriber?limit=${limit}`;
-    const data = await fetchData(url, token);
-    const subreddits = data.data.children.map(
-      (child: any) => child.data.display_name
-    );
+    const subreddits = await ApiService.getSubscribedSubreddits(token, limit);
+
     const posts = await Promise.all(
       subreddits.map(async (subreddit: string) => {
         const postsUrl = `https://oauth.reddit.com/r/${subreddit}/new?limit=${limit}`;
         const postsData = await fetchData(postsUrl, token);
-        return postsData.data.children.map((child: any) => child.data);
+
+        return postsData.data.children.map(
+          ({ data }: any): PostType => ({
+            id: data.id,
+            title: data.title,
+            author: data.author,
+            subreddit_name_prefixed: data.subreddit_name_prefixed,
+            url: data.url,
+            thumbnail: ["self", "nsfw", "default"].includes(data.thumbnail)
+              ? null
+              : data.thumbnail,
+            created_utc: new Date(data.created_utc * 1000),
+          })
+        );
       })
     );
-    return posts.flat();
+
+    const flattenedPosts = posts.flat();
+
+    // Sort posts by created_utc in descending order
+    flattenedPosts.sort(
+      (a: PostType, b: PostType) =>
+        b.created_utc.getTime() - a.created_utc.getTime()
+    );
+
+    return flattenedPosts.slice(0, limit);
+  },
+
+  /**
+   * Gets the user's subscribed subreddits using the provided token.
+   * @param token The token to use for authentication.
+   * @param limit The maximum number of subreddits to return.
+   * @returns A Promise that resolves to an array of subscribed subreddits.
+   */
+  getSubscribedSubreddits: async (
+    token: string,
+    limit: number = 25
+  ): Promise<string[]> => {
+    const url = `https://oauth.reddit.com/subreddits/mine/subscriber?limit=${limit}`;
+    const data = await fetchData(url, token);
+    return data.data.children.map((child: any) => child.data.display_name);
   },
 
   validateToken: async (token: string): Promise<boolean> => {

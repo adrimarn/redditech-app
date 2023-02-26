@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useAuthAccessToken } from "../contexts/AuthContext";
+import React, { useState } from "react";
 import { StyleSheet, Image, View, RefreshControl } from "react-native";
 import {
   Layout,
@@ -7,7 +6,6 @@ import {
   Input,
   useTheme,
   Text,
-  Icon,
   Button,
 } from "@ui-kitten/components";
 import { ApiService } from "../services/apiService";
@@ -15,7 +13,6 @@ import { SubRedditInformation } from "../services/apiService";
 import { ScrollView } from "react-native-gesture-handler";
 
 const Search = () => {
-  const { accessToken } = useAuthAccessToken();
   const [subRedditName, setSubRedditName] = useState<string>();
   const [subRedditInfo, setSubRedditInfo] = useState<SubRedditInformation>();
   const [refreshing, setRefreshing] = React.useState(false);
