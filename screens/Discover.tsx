@@ -1,40 +1,38 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, FlatList, StyleSheet, SafeAreaView } from "react-native";
-import { ApiService, PostType } from "../services/apiService";
-import { useAuthAccessToken } from "../contexts/AuthContext";
+import { ApiService } from "../services/apiService";
 import { Spinner, Layout, Text } from "@ui-kitten/components";
-import { CardItem } from "../components/CardItem";
+import { CategoryItem, CategoryItemProps } from "../components/CategoryItem";
 
-export const Feed = () => {
-  const [subscribedPosts, setSubscribedPosts] = useState<PostType[]>([]);
+export const Discover = () => {
+  //const [subscribedPosts, setSubscribedPosts] = useState<PostType[]>([]);
+  const [subreddits, setSubreddits] = useState<CategoryItemProps[]>([]);
   const [loading, setLoading] = useState(true);
-  const { accessToken } = useAuthAccessToken();
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  const fetchSubscribedPosts: () => Promise<void> = useCallback(async () => {
+  const fetchSubreddits: () => Promise<void> = useCallback(async () => {
     try {
-      const data = await ApiService.getSubscribedPosts(accessToken);
-      // data.sort(
-      //   (a, b) =>
-      //     new Date(b.created_utc).getTime() - new Date(a.created_utc).getTime()
-      // );
-      setSubscribedPosts(data);
+      const data = await ApiService.getRandomSubreddits();
+      setSubreddits(data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, []);
 
   useEffect(() => {
-    fetchSubscribedPosts();
-  }, [fetchSubscribedPosts]);
+    fetchSubreddits();
+  }, [fetchSubreddits]);
 
   const onRefresh = async () => {
+    setRefreshing(true);
     try {
-      await fetchSubscribedPosts();
+      await fetchSubreddits();
     } catch (error) {
       console.error(error);
     }
+    setRefreshing(false);
   };
 
   return (
@@ -46,16 +44,24 @@ export const Feed = () => {
           </View>
         ) : (
           <>
-            {subscribedPosts.length > 0 ? (
+            {subreddits.length > 0 ? (
               <FlatList
-                data={subscribedPosts}
-                renderItem={CardItem}
+                data={subreddits}
+                renderItem={CategoryItem}
                 keyExtractor={(item) => item.id}
                 onRefresh={onRefresh}
-                refreshing={loading}
+                refreshing={refreshing}
               />
             ) : (
-              <Text category="h6">No posts to show</Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text category="h6">No posts to show</Text>
+              </View>
             )}
           </>
         )}

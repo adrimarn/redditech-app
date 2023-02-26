@@ -4,7 +4,7 @@ import {
   BottomTabBarProps,
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
-import { Feed } from "../screens/Feed";
+import { Discover } from "../screens/Discover";
 import Profile from "../screens/Profile";
 import Search from "../screens/Search";
 import {
@@ -45,7 +45,7 @@ export const AppStack = () => (
     screenOptions={{ headerShown: false }}
   >
     <Tab.Screen name="Home" component={HomeScreen} />
-    <Tab.Screen name="Feed" component={Feed} />
+    <Tab.Screen name="Feed" component={Discover} />
     <Tab.Screen name="Profile" component={Profile} />
     <Tab.Screen name="Search" component={Search} />
     <Tab.Screen name="Posts" component={Posts} />

@@ -12,7 +12,6 @@ import {
 import { ApiService } from "../services/apiService";
 import {
   SubRedditInformation,
-  RedditApiResponse,
 } from "../services/apiService";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -20,7 +19,7 @@ const Search = ({ navigation }: any) => {
   const { accessToken } = useAuthAccessToken();
   const [subRedditName, setSubRedditName] = useState<string>();
   const [subRedditInfo, setSubRedditInfo] = useState<SubRedditInformation>();
-  const [subscriredSub, setSubscriredSub] = useState<RedditApiResponse>();
+  const [subscriredSub, setSubscriredSub] = useState<any>();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -78,9 +77,9 @@ const Search = ({ navigation }: any) => {
   };
 
   const searchSubReddit = async () => {
-    const data = await ApiService.getSubReddit(subRedditName as string);
+    const data = await ApiService.getSubRedditByName(subRedditName as string);
     setSubRedditInfo(data);
-    const res = await ApiService.getSubscridedSubReddit(accessToken);
+    const res = await ApiService.getSubscribedSubreddits(accessToken);
     setSubscriredSub(res);
   };
 
@@ -90,11 +89,9 @@ const Search = ({ navigation }: any) => {
     });
   };
 
-
-
   const SubscribeButton = (props: any) => {
     let isSubscribed = false;
-    subscriredSub?.data.children.map((item) => {
+    subscriredSub?.data.children.map((item: any) => {
       if (item.data.display_name === props.para1) {
         isSubscribed = true;
       }
@@ -104,7 +101,9 @@ const Search = ({ navigation }: any) => {
     } else {
       return (
         <Button
-          onPress={() => ApiService.subscribeToSubreddit(props.para2,accessToken)}
+          onPress={() =>
+            ApiService.subscribeToSubreddit(props.para2, accessToken)
+          }
           style={{ marginVertical: 10 }}
         >
           Subscribe

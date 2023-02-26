@@ -13,6 +13,7 @@ export type AuthAccessTokenContent = {
   //setAccessToken: React.Dispatch<React.SetStateAction<string>>;
   signIn: (accessToken: string) => void;
   signOut: () => void;
+  loading: boolean
 };
 
 export const AuthContext = createContext<AuthAccessTokenContent>({
@@ -20,6 +21,7 @@ export const AuthContext = createContext<AuthAccessTokenContent>({
   //setAccessToken: () => {},
   signIn: () => {},
   signOut: () => {},
+  loading: false
 });
 
 export const useAuthAccessToken = () => useContext(AuthContext);
@@ -42,6 +44,8 @@ export const AuthProvider = ({ children }: any) => {
         const tokenIsValid = await ApiService.validateToken(accessToken);
         if (tokenIsValid) {
           setAccessToken(accessToken);
+          console.log("Token is valid");
+          console.log(accessToken);
         }
       }
     } catch (e) {
@@ -70,8 +74,10 @@ export const AuthProvider = ({ children }: any) => {
     }
   }, []);
 
+  const loading = !loaded;
+
   return (
-    <AuthContext.Provider value={{ accessToken, signIn, signOut }}>
+    <AuthContext.Provider value={{ accessToken, signIn, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );

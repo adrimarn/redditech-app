@@ -1,4 +1,5 @@
 import Toast from "react-native-toast-message";
+import { CategoryItemProps } from "../components/CategoryItem";
 
 /**
  * Fetches data from the specified URL with the provided token.
@@ -76,7 +77,7 @@ export type SubRedditInformation = {
   };
 };
 
-export interface RedditApiResponse {
+export interface SubscribedSubredditsResponse {
   kind: string;
   data: {
     after: string | null;
@@ -167,12 +168,15 @@ export const ApiService = {
   getSubscribedSubreddits: async (
     token: string,
     limit: number = 25
-  ): Promise<string[]> => {
+  ): Promise<any[]> => {
     const url = `https://oauth.reddit.com/subreddits/mine/subscriber?limit=${limit}`;
-    const data = await fetchData(url, token);
-    return data.data.children.map((child: any) => child.data.display_name);
+    return await fetchData(url, token);
   },
 
+  /**
+   * Checks if the provided token is valid.
+   * @param token - The token to check.
+   */
   validateToken: async (token: string): Promise<boolean> => {
     const url = "https://oauth.reddit.com/api/v1/me?raw_json=1";
     try {
@@ -182,7 +186,12 @@ export const ApiService = {
       return false;
     }
   },
-  getSubReddit: async (subredditName: string) => {
+
+  /**
+   * Gets the user's subscribed subreddits using the provided token.
+   * @param subredditName - The name of the subreddit to search for.
+   */
+  getSubRedditByName: async (subredditName: string) => {
     const url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}`;
     const response = await fetch(url, {
       method: "GET",
@@ -195,13 +204,12 @@ export const ApiService = {
     return res;
   },
 
-  getSubscridedSubReddit: async (token: string) => {
-    const url = "https://oauth.reddit.com/subreddits/mine/subscriber";
-    const data = await fetchData(url, token);
-
-    return data;
-  },
-
+  /**
+   * Subscribes to a subreddit using the provided token.
+   *
+   * @param subredditName - The name of the subreddit to subscribe to.
+   * @param accessToken - The token to use for authentication.
+   */
   subscribeToSubreddit: async (subredditName: string, accessToken: string) => {
     console.log(subredditName);
     const url = `https://oauth.reddit.com/r/${subredditName}/api/subscribe`;
@@ -253,4 +261,99 @@ export const ApiService = {
       throw new Error(errorMessage);
     }
   },
+
+  /**
+   * Gets a random list of subreddits.
+   * @param limit The maximum number of subreddits to return.
+   */
+  getRandomSubreddits: async (
+    limit: number = 20
+  ): Promise<CategoryItemProps[]> => {
+    try {
+      const subreddits = await ApiService.getSubreddit();
+      const randomIndexes = new Set<number>();
+      while (randomIndexes.size < limit) {
+        randomIndexes.add(Math.floor(Math.random() * subreddits.length));
+      }
+      return Array.from(randomIndexes).map((index) => subreddits[index]);
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  },
+
+  /**
+   * Gets a list of subreddits.
+   * @param limit The maximum number of subreddits to return.
+   * @returns A Promise that resolves to an array of subreddits.
+   */
+  getSubreddit: async (limit: number = 100): Promise<CategoryItemProps[]> => {
+    try {
+      const url = `https://www.reddit.com/subreddits/popular.json?limit=${limit}`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const {
+        data: { children },
+      } = await response.json();
+
+      return children.map(({ data }: any) => ({
+        id: data.id,
+        name: data.display_name_prefixed,
+        description: data.public_description,
+        subscribersCount: data.subscribers,
+        url: data.url,
+      }));
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  },
+
+  /**
+   * Gets the latest post thumbnail from the provided subreddit.
+   * @param subreddit The subreddit to get the latest post thumbnail from.
+   * @returns A Promise that resolves to the latest post thumbnail.
+   */
+  getLatestPostThumbnail: async (subreddit: string): Promise<string | null> => {
+    try {
+      const postsUrl = `https://www.reddit.com/r/${subreddit}/new.json?limit=20&raw_json=1`;
+      const response = await fetch(postsUrl);
+      const postsData = await response.json();
+      if (postsData.data.children.length > 0) {
+        let foundThumbnail = null;
+        for (let i = 0; i < postsData.data.children.length; i++) {
+          const post = postsData.data.children[i];
+          const previewImages = post.data.preview && post.data.preview.images;
+          if (previewImages && previewImages.length > 0) {
+            for (let j = 0; j < previewImages.length; j++) {
+              const image = previewImages[j];
+              const thumbnail = image.source && image.source.url;
+              if (
+                thumbnail &&
+                !["self", "nsfw", "default"].includes(thumbnail)
+              ) {
+                foundThumbnail = thumbnail;
+                break;
+              }
+            }
+          }
+          if (foundThumbnail) {
+            break;
+          }
+        }
+        return foundThumbnail;
+      }
+      return null;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  },
 };
+
+// git commit message convention: Improve performance and replace posts feed with Discover screen:

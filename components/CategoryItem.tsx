@@ -1,5 +1,5 @@
-import React from "react";
-import { PostType } from "../services/apiService";
+import React, { useEffect, useState } from "react";
+import { ApiService } from "../services/apiService";
 import {
   ImageBackground,
   Linking,
@@ -10,41 +10,66 @@ import {
 import { Text as KText } from "@ui-kitten/components/ui/text/text.component";
 
 const handleCardPress = (url: string) => {
-  Linking.openURL(url);
+  //TODO: Redirect to subreddit posts
+  // Linking.openURL(url);
 };
 
-export const CardItem = ({ item }: { item: PostType }) => (
+export interface CategoryItemProps {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  subscribersCount: number;
+}
+
+function numberWithSpaces(x: number) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+export const CategoryItem = ({ item }: { item: CategoryItemProps }) => (
   <ItemView item={item} />
 );
 
-const ItemView = React.memo(
-  ({ item }: { item: PostType }) => (
+const ItemView = ({ item }: { item: CategoryItemProps }) => {
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getThumbnail = async () => {
+      try {
+        const thumbnailUrl = await ApiService.getLatestPostThumbnail(
+          item.name.slice(2)
+        );
+        setThumbnail(thumbnailUrl);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getThumbnail();
+  }, []);
+
+  return (
     <View style={styles.card}>
       <TouchableOpacity onPress={() => handleCardPress(item.url)}>
         <ImageBackground
           style={styles.image}
-          source={{ uri: item.thumbnail }}
+          source={thumbnail ? { uri: thumbnail } : undefined}
           resizeMode="cover"
           imageStyle={styles.imageStyle}
         >
           <View style={styles.text}>
             <KText category="h5" style={styles.title}>
-              {item.title}
+              {item.name}
             </KText>
             <KText appearance="hint" category="s1" style={styles.subtitle}>
-              {item.subreddit_name_prefixed}
+              {numberWithSpaces(item.subscribersCount)} members
             </KText>
-            <KText>{item.author}</KText>
           </View>
         </ImageBackground>
       </TouchableOpacity>
     </View>
-  ),
-  (prevProps, nextProps) => {
-    // Only re-render the component if the item prop changes
-    return prevProps.item === nextProps.item;
-  }
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
