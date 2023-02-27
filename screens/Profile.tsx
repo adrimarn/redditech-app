@@ -5,7 +5,7 @@ import {
   UserDataType,
   UserPreferencesDataType,
 } from "../services/apiService";
-import { Image, StyleSheet, View, Modal } from "react-native";
+import { Image, StyleSheet, View, Modal, Button as NButton } from "react-native";
 import {
   Layout,
   Text,
@@ -17,15 +17,25 @@ import {
   Card,
   List,
   ListItem,
+  RadioGroup,
+  Radio,
+  Select,
 } from "@ui-kitten/components";
 import { Feather } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 const UserProfile = () => {
-  const { accessToken } = useAuthAccessToken();
+  const { accessToken, signOut } = useAuthAccessToken();
   const [userData, setUserData] = React.useState<UserDataType>();
   const [userPreferencesData, setUserPreferencesData] =
-    React.useState<UserPreferencesDataType>();
+    React.useState<UserPreferencesDataType>({
+      accept_pms: "",
+      email_messages: false,
+      activity_relevant_ads: false,
+      nightmode: false,
+      mark_messages_read: false,
+      highlight_controversial: false,
+    });
   const theme = useTheme();
 
   const styles = StyleSheet.create({
@@ -74,11 +84,10 @@ const UserProfile = () => {
       marginTop: "20%",
       left: "29%",
     },
+    radioButtons: {
+      left:"350%",
+    }
   });
-
-  function updatePreferences() {
-    setUserPreferencesData(userPreferencesData);
-  }
 
   React.useEffect(() => {
     async function fetchUserData() {
@@ -96,31 +105,32 @@ const UserProfile = () => {
   const [modalVisible, setModalVisible] = React.useState(false);
 
   const handlePreferenceChange = (
-    preferenceName: string,
-    value: boolean | number
+    preferenceName: keyof UserPreferencesDataType,
+    value: boolean | string | undefined
   ) => {
-    setUserPreferencesData((prevState) => ({
-      ...prevState,
+    setUserPreferencesData({
+      ...userPreferencesData,
       [preferenceName]: value,
-    }));
-    console.log("UserPreferencesData:")
-    console.log(userPreferencesData?.activity_relevant_ads)
-    console.log(userPreferencesData?.email_messages)
-    console.log(userPreferencesData?.highlight_controversial)
-    console.log(userPreferencesData?.mark_messages_read)
-    console.log(userPreferencesData?.nightmode)
+    });
+    setTimeout(() => {
+      ApiService.updateUserPreferences(accessToken, userPreferencesData);
+    }, 1000);
   };
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
-    updatePreferences();
   };
 
   const handleSave = () => {
     if (userPreferencesData)
-      ApiService.updateUserPreferences(accessToken, userPreferencesData)
+      ApiService.updateUserPreferences(accessToken, userPreferencesData);
     toggleModal();
   };
+
+  const options = [
+    { label: 'Everyone', value: "everyone" },
+    { label: 'Whitelisted', value: "whitelisted" },
+  ];
 
   return (
     <Layout style={styles.container}>
@@ -132,9 +142,7 @@ const UserProfile = () => {
           <Text style={styles.description}>
             {userData.subreddit.public_description}
           </Text>
-          <Button style={styles.editButton} size="large">
-            Edit
-          </Button>
+          <NButton title={"Logout"} onPress={signOut} />
           <View style={{ position: "absolute", top: "10%", left: "95%" }}>
             <TouchableOpacity onPress={toggleModal}>
               <Feather name="settings" size={24} color="white" />
@@ -145,7 +153,7 @@ const UserProfile = () => {
               <Text category="h2" style={styles.preferenceStyle}>
                 Préférences
               </Text>
-              <List
+              <List style={{backgroundColor: 'rgba(52, 52, 52, 0)'}}
                 data={[
                   {
                     title: "Private messages",
@@ -154,7 +162,7 @@ const UserProfile = () => {
                   },
                   {
                     title: "Email messages",
-                    name: "emailMessages",
+                    name: "email_messages",
                     checked: userPreferencesData?.email_messages,
                   },
                   {
@@ -174,35 +182,44 @@ const UserProfile = () => {
                   },
                   {
                     title: "Highlight controversial",
-                    name: "highlightControversial",
+                    name: "highlight_controversial",
                     checked: userPreferencesData?.highlight_controversial,
                   },
                 ]}
                 renderItem={({ item }) => {
                   if (item.name === "accept_pms") {
                     return (
-                      <Input
-                        label={item.title}
-                        value={item.checked?.toString()}
-                        keyboardType="numeric"
-                        onChangeText={(text) =>
-                          handlePreferenceChange(
-                            item.name,
-                            parseInt(text)
-                          )
-                        }
-                      />
+                      <View>
+                        <Text category='s1' style={{top:"40%", left:"4.5%"}}>{item.title}</Text>
+                        <RadioGroup
+                          selectedIndex={options.findIndex(
+                            (option) => option.value === item.checked
+                          )}
+                          onChange={(index) => {
+                            const selectedValue = options[index].value;
+                            handlePreferenceChange(
+                              item.name as keyof UserPreferencesDataType,
+                              selectedValue
+                            );
+                          }}
+                        >
+                          {options.map((option) => (
+                            <Radio style={styles.radioButtons} key={option.value}>{option.label}</Radio>
+                          ))}
+                        </RadioGroup>
+                      </View>
                     );
                   } else {
                     return (
                       <ListItem
+                        style={{marginTop:"10%"}}
                         title={item.title}
                         accessoryRight={() => (
                           <Toggle
                             checked={item.checked as boolean}
                             onChange={(checked) =>
                               handlePreferenceChange(
-                                item.name,
+                                item.name as keyof UserPreferencesDataType,
                                 checked
                               )
                             }
