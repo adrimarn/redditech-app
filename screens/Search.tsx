@@ -125,17 +125,14 @@ const Search = ({ navigation }: any) => {
     }
   };
 
-  const Category = ({data}: dataInfoSubbredit) => {
-    useEffect(() => {
-      console.log("item: ", data)
-    }, []);
+  const Category = ({ data: item }: { data: dataInfoSubbredit }) => {
+    useEffect(() => {}, []);
     return (
       <>
-        {
-          data &&
+        {item && (
           <Card
-            onPress={() => onPress(data.display_name_prefixed)}
-            key={data.id}
+            onPress={() => onPress(item.data.display_name_prefixed)}
+            key={item.data.id}
             style={styles.cardContainer}
           >
             <View style={styles.imgContainer}>
@@ -145,14 +142,14 @@ const Search = ({ navigation }: any) => {
               /> */}
             </View>
 
-            <Text style={styles.icon}>{data.subscribers} subscribers</Text>
-            <Text>{data.user_is_subscriber}</Text>
-            <Text category="h6">{data.display_name_prefixed}</Text>
-            <Text>{data.public_description}</Text>
+            <Text style={styles.icon}>{item.data.subscribers} subscribers</Text>
+            <Text>{item.data.user_is_subscriber}</Text>
+            <Text category="h6">{item.data.display_name_prefixed}</Text>
+            <Text>{item.data.public_description}</Text>
 
-            <SubscribeButton para1={data.title} />
+            <SubscribeButton para1={item.data.title} />
           </Card>
-        }
+        )}
       </>
     );
   };
@@ -172,11 +169,9 @@ const Search = ({ navigation }: any) => {
         />
         <Button onPress={searchSubReddit}>Search</Button>
         {subRedditInfo &&
-          subRedditInfo.data.children.map((i, idx) => {
-            return <Category data={i} />
-          })
-
-          }
+          subRedditInfo.data.children.map((i) => {
+            return <Category data={i} />;
+          })}
       </ScrollView>
     </Layout>
   );

@@ -1,38 +1,50 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { View, FlatList, StyleSheet, SafeAreaView } from "react-native";
 import { ApiService } from "../services/apiService";
 import { Spinner, Layout, Text } from "@ui-kitten/components";
 import { CategoryItem, CategoryItemProps } from "../components/CategoryItem";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const Discover = () => {
   //const [subscribedPosts, setSubscribedPosts] = useState<PostType[]>([]);
   const [subreddits, setSubreddits] = useState<CategoryItemProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [fetched, setFetched] = useState(false);
 
-  const fetchSubreddits: () => Promise<void> = useCallback(async () => {
-    try {
-      const data = await ApiService.getRandomSubreddits();
-      setSubreddits(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchSubreddits: (loadingIndicator?: boolean) => Promise<void> =
+    useCallback(async (loadingIndicator) => {
+      try {
+        if (loadingIndicator) setLoading(true);
+        const data = await ApiService.getRandomSubreddits();
+        if (data) {
+          setFetched(true);
+          setSubreddits(data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }, []);
 
-  useEffect(() => {
-    fetchSubreddits();
-  }, [fetchSubreddits]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!fetched) {
+        fetchSubreddits(true);
+      }
+    }, [fetched])
+  );
 
   const onRefresh = async () => {
-    setRefreshing(true);
     try {
+      setRefreshing(true);
       await fetchSubreddits();
     } catch (error) {
       console.error(error);
+    } finally {
+      setRefreshing(false);
     }
-    setRefreshing(false);
   };
 
   return (

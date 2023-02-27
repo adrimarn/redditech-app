@@ -8,14 +8,17 @@ import { CategoryItemProps } from "../components/CategoryItem";
  * @returns A Promise that resolves to the fetched data.
  * @throws An error if there is a problem fetching the data.
  */
-const fetchData = async (url: string, token: string): Promise<any> => {
+const fetchData = async (url: string, token?: string): Promise<any> => {
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `bearer ${token}`;
+    }
     const response = await fetch(url, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `bearer ${token}`,
-      },
+      headers,
     });
     return response.json();
   } catch (error) {
@@ -177,15 +180,7 @@ export const ApiService = {
    */
   getSubRedditByName: async (subredditName: string) => {
     const url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}`;
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const res = await response.json();
-    console.log(res);
-    return res;
+    return await fetchData(url);
   },
 
   /**
@@ -193,11 +188,12 @@ export const ApiService = {
    *
    * @param subredditName - The name of the subreddit to subscribe to.
    * @param accessToken - The token to use for authentication.
+   * @param action - The action to perform. Defaults to "sub".
    */
   subscribeToSubreddit: async (
     subredditName: string,
     accessToken: string,
-    action: string = "sub"
+    action: "sub" | "unsub" = "sub"
   ): Promise<any> => {
     const endpoint = `https://oauth.reddit.com/api/subscribe?sr_name=${subredditName}&action=${action}`;
 
@@ -266,7 +262,7 @@ export const ApiService = {
       return Array.from(randomIndexes).map((index) => subreddits[index]);
     } catch (error) {
       console.log(error);
-      return [];
+      throw error;
     }
   },
 
@@ -278,16 +274,11 @@ export const ApiService = {
   getSubreddit: async (limit: number = 100): Promise<CategoryItemProps[]> => {
     try {
       const url = `https://www.reddit.com/subreddits/popular.json?limit=${limit}`;
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const data = await fetchData(url);
 
       const {
         data: { children },
-      } = await response.json();
+      } = data;
 
       return children.map(({ data }: any) => ({
         id: data.id,
@@ -298,7 +289,7 @@ export const ApiService = {
       }));
     } catch (error) {
       console.error(error);
-      return [];
+      throw error;
     }
   },
 
@@ -310,8 +301,7 @@ export const ApiService = {
   getLatestPostThumbnail: async (subreddit: string): Promise<string | null> => {
     try {
       const postsUrl = `https://www.reddit.com/r/${subreddit}/new.json?limit=20&raw_json=1`;
-      const response = await fetch(postsUrl);
-      const postsData = await response.json();
+      const postsData = await fetchData(postsUrl);
       if (postsData.data.children.length > 0) {
         let foundThumbnail = null;
         for (let i = 0; i < postsData.data.children.length; i++) {
@@ -346,7 +336,7 @@ export const ApiService = {
     const url = `https://oauth.reddit.com/r/${subredditName.slice(3)}/about`;
 
     const response = await fetchData(url, accessToken);
-    
+
     return response.data.user_is_subscriber;
   },
 };
