@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ApiService } from "../services/apiService";
 import {
   ImageBackground,
-  Linking,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
 import { Text as KText } from "@ui-kitten/components/ui/text/text.component";
-
-const handleCardPress = (url: string) => {
-  //TODO: Redirect to subreddit posts
-  // Linking.openURL(url);
-};
 
 export interface CategoryItemProps {
   id: string;
@@ -32,6 +26,11 @@ export const CategoryItem = ({ item }: { item: CategoryItemProps }) => (
 
 const ItemView = ({ item }: { item: CategoryItemProps }) => {
   const [thumbnail, setThumbnail] = useState<string | null>(null);
+
+  const handleCardPress = useCallback((url: string) => {
+    //TODO: Redirect to subreddit posts
+    // Linking.openURL(url);
+  }, []);
 
   useEffect(() => {
     const getThumbnail = async () => {

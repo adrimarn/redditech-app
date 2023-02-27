@@ -48,7 +48,7 @@ export const Discover = () => {
               <FlatList
                 data={subreddits}
                 renderItem={CategoryItem}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item?.id}
                 onRefresh={onRefresh}
                 refreshing={refreshing}
               />

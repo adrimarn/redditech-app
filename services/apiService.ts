@@ -355,5 +355,3 @@ export const ApiService = {
     }
   },
 };
-
-// git commit message convention: Improve performance and replace posts feed with Discover screen:
