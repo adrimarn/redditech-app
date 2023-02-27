@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
 import { StyleSheet, Image, View, RefreshControl } from "react-native";
 import {
@@ -9,17 +9,14 @@ import {
   Text,
   Button,
 } from "@ui-kitten/components";
-import { ApiService } from "../services/apiService";
-import {
-  SubRedditInformation,
-} from "../services/apiService";
+import { ApiService, dataInfoSubbredit } from "../services/apiService";
+import { SubRedditInformation } from "../services/apiService";
 import { ScrollView } from "react-native-gesture-handler";
 
 const Search = ({ navigation }: any) => {
   const { accessToken } = useAuthAccessToken();
   const [subRedditName, setSubRedditName] = useState<string>();
   const [subRedditInfo, setSubRedditInfo] = useState<SubRedditInformation>();
-  const [subscriredSub, setSubscriredSub] = useState<any>();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -79,8 +76,6 @@ const Search = ({ navigation }: any) => {
   const searchSubReddit = async () => {
     const data = await ApiService.getSubRedditByName(subRedditName as string);
     setSubRedditInfo(data);
-    const res = await ApiService.getSubscribedSubreddits(accessToken);
-    setSubscriredSub(res);
   };
 
   const onPress = (titleName: string) => {
@@ -89,27 +84,77 @@ const Search = ({ navigation }: any) => {
     });
   };
 
+  const handleSubscribe = async (subbreditName: string) => {
+    try {
+      await ApiService.subscribeToSubreddit(subbreditName, accessToken);
+    } catch {}
+  };
+
+  const handleUnSubscribe = async (subbreditName: string) => {
+    try {
+      await ApiService.subscribeToSubreddit(subbreditName, accessToken);
+    } catch {}
+  };
+
   const SubscribeButton = (props: any) => {
     let isSubscribed = false;
-    subscriredSub?.data.children.map((item: any) => {
-      if (item.data.display_name === props.para1) {
+    const result = ApiService.hasSubscribed(props.para1, accessToken);
+    result.then((data: boolean) => {
+      if (data) {
         isSubscribed = true;
       }
     });
     if (isSubscribed) {
-      return <Button style={{ marginVertical: 10 }}>Unsubscribe</Button>;
+      return (
+        <Button
+          onPress={() => handleUnSubscribe(props.para1)}
+          style={{ marginVertical: 10 }}
+        >
+          Unsubscribe
+        </Button>
+      );
     } else {
       return (
         <Button
-          onPress={() =>
-            ApiService.subscribeToSubreddit(props.para2, accessToken)
-          }
+          onPress={() => handleSubscribe(props.para1)}
           style={{ marginVertical: 10 }}
         >
           Subscribe
         </Button>
       );
     }
+  };
+
+  const Category = ({data}: dataInfoSubbredit) => {
+    useEffect(() => {
+      console.log("item: ", data)
+    }, []);
+    return (
+      <>
+        {
+          data &&
+          <Card
+            onPress={() => onPress(data.display_name_prefixed)}
+            key={data.id}
+            style={styles.cardContainer}
+          >
+            <View style={styles.imgContainer}>
+              {/* <Image
+                style={styles.img}
+                source={{ uri: data.header_img }}
+              /> */}
+            </View>
+
+            <Text style={styles.icon}>{data.subscribers} subscribers</Text>
+            <Text>{data.user_is_subscriber}</Text>
+            <Text category="h6">{data.display_name_prefixed}</Text>
+            <Text>{data.public_description}</Text>
+
+            <SubscribeButton para1={data.title} />
+          </Card>
+        }
+      </>
+    );
   };
 
   return (
@@ -127,24 +172,11 @@ const Search = ({ navigation }: any) => {
         />
         <Button onPress={searchSubReddit}>Search</Button>
         {subRedditInfo &&
-          subRedditInfo.data.children.map((i, idx) => (
-            <Card
-              onPress={() => onPress(i.data.title)}
-              key={idx}
-              style={styles.cardContainer}
-            >
-              <View style={styles.imgContainer}>
-                <Image style={styles.img} source={{ uri: i.data.header_img }} />
-              </View>
-              <Text>{i.data.id}</Text>
-              <Text style={styles.icon}>{i.data.subscribers} subscribers</Text>
-              <Text>{i.data.user_is_subscriber}</Text>
-              <Text category="h6">{i.data.title}</Text>
-              <Text>{i.data.public_description}</Text>
+          subRedditInfo.data.children.map((i, idx) => {
+            return <Category data={i} />
+          })
 
-              <SubscribeButton para1={i.data.title} para2={i.data.title} />
-            </Card>
-          ))}
+          }
       </ScrollView>
     </Layout>
   );

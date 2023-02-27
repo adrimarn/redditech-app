@@ -62,6 +62,7 @@ export type PostType = {
 export type dataInfoSubbredit = {
   data: {
     title: string;
+    display_name_prefixed: string;
     subscribers: string;
     public_description: string;
     header_img: string;
@@ -76,23 +77,6 @@ export type SubRedditInformation = {
     children: dataInfoSubbredit[];
   };
 };
-
-export interface SubscribedSubredditsResponse {
-  kind: string;
-  data: {
-    after: string | null;
-    dist: number;
-    modhash: string | null;
-    geo_filter: string;
-    children: Array<{
-      kind: string;
-      data: {
-        name: string;
-        display_name: string;
-      };
-    }>;
-  };
-}
 
 /**
  * Service that interacts with a Reddit API.
@@ -210,23 +194,27 @@ export const ApiService = {
    * @param subredditName - The name of the subreddit to subscribe to.
    * @param accessToken - The token to use for authentication.
    */
-  subscribeToSubreddit: async (subredditName: string, accessToken: string) => {
-    console.log(subredditName);
-    const url = `https://oauth.reddit.com/r/${subredditName}/api/subscribe`;
-    const data = { action: "sub" };
-    const headers = {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    };
-    const response = await fetch(url, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-    });
+  subscribeToSubreddit: async (
+    subredditName: string,
+    accessToken: string,
+    action: string = "sub"
+  ): Promise<any> => {
+    const endpoint = `https://oauth.reddit.com/api/subscribe?sr_name=${subredditName}&action=${action}`;
 
-    const res = await response.json();
-    console.log(res);
-    return res;
+    fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          console.error(`Erreur ${subredditName} : ${response.statusText}`);
+        }
+      })
+      .catch((error) => console.error(error));
   },
 
   /**
@@ -353,6 +341,13 @@ export const ApiService = {
       console.log(error);
       return null;
     }
+  },
+  hasSubscribed: async (subredditName: string, accessToken: string) => {
+    const url = `https://oauth.reddit.com/r/${subredditName.slice(3)}/about`;
+
+    const response = await fetchData(url, accessToken);
+    
+    return response.data.user_is_subscriber;
   },
 };
 
