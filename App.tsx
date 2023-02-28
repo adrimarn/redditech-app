@@ -5,20 +5,19 @@ import * as eva from "@eva-design/eva";
 import { default as theme } from "./adrimarn-theme.json";
 import { Router } from "./routes/Router";
 import Toast from "react-native-toast-message";
-import { EvaIconsPack } from '@ui-kitten/eva-icons';
+import { EvaIconsPack } from "@ui-kitten/eva-icons";
 
 export default function App() {
   return (
-      <>
-        <IconRegistry icons={EvaIconsPack}/>
-        <ApplicationProvider {...eva} theme={{...eva.dark, ...theme}}>
+    <>
+      <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
         <AuthProvider>
-          <Router/>
-          <StatusBar style="auto"/>
-          <Toast/>
+          <Router />
+          <StatusBar style="auto" />
+          <Toast />
         </AuthProvider>
       </ApplicationProvider>
-      </>
-
+    </>
   );
 }
