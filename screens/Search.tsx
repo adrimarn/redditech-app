@@ -84,49 +84,54 @@ const Search = ({ navigation }: any) => {
     });
   };
 
-  const handleSubscribe = async (subbreditName: string) => {
-    try {
-      await ApiService.subscribeToSubreddit(subbreditName, accessToken);
-    } catch {}
-  };
-
-  const handleUnSubscribe = async (subbreditName: string) => {
-    try {
-      await ApiService.subscribeToSubreddit(subbreditName, accessToken);
-    } catch {}
-  };
-
-  const SubscribeButton = (props: any) => {
-    let isSubscribed = false;
-    const result = ApiService.hasSubscribed(props.para1, accessToken);
-    result.then((data: boolean) => {
-      if (data) {
-        isSubscribed = true;
-      }
-    });
-    if (isSubscribed) {
-      return (
-        <Button
-          onPress={() => handleUnSubscribe(props.para1)}
-          style={{ marginVertical: 10 }}
-        >
-          Unsubscribe
-        </Button>
-      );
-    } else {
-      return (
-        <Button
-          onPress={() => handleSubscribe(props.para1)}
-          style={{ marginVertical: 10 }}
-        >
-          Subscribe
-        </Button>
-      );
-    }
-  };
-
   const Category = ({ data: item }: { data: dataInfoSubbredit }) => {
-    useEffect(() => {}, []);
+    const SubscribeButton = (props: any) => {
+      const [isSubscribed, setIsSubscribed] = useState(false);
+
+      const handleSubscribe = (subbreditName: string) => {
+        ApiService.subscribeToSubreddit(subbreditName, accessToken).then(() => {
+          setIsSubscribed(true);
+        });
+      };
+
+      const handleUnSubscribe = async (subbreditName: string) => {
+        ApiService.subscribeToSubreddit(
+          subbreditName,
+          accessToken,
+          "unsub"
+        ).then(() => {
+          setIsSubscribed(false);
+        });
+      };
+
+      useEffect(() => {
+        const result = ApiService.hasSubscribed(props.para1, accessToken);
+        result.then((data: boolean) => {
+          setIsSubscribed(data);
+        });
+      }, []);
+
+      if (isSubscribed) {
+        return (
+          <Button
+            onPress={() => handleUnSubscribe(props.para1)}
+            style={{ marginVertical: 10 }}
+          >
+            Unsubscribe
+          </Button>
+        );
+      } else {
+        return (
+          <Button
+            onPress={() => handleSubscribe(props.para1)}
+            style={{ marginVertical: 10 }}
+          >
+            Subscribe
+          </Button>
+        );
+      }
+    };
+
     return (
       <>
         {item && (
@@ -136,10 +141,10 @@ const Search = ({ navigation }: any) => {
             style={styles.cardContainer}
           >
             <View style={styles.imgContainer}>
-              {/* <Image
+              <Image
                 style={styles.img}
-                source={{ uri: data.header_img }}
-              /> */}
+                source={{ uri: item.data.header_img }}
+              />
             </View>
 
             <Text style={styles.icon}>{item.data.subscribers} subscribers</Text>
@@ -147,7 +152,7 @@ const Search = ({ navigation }: any) => {
             <Text category="h6">{item.data.display_name_prefixed}</Text>
             <Text>{item.data.public_description}</Text>
 
-            <SubscribeButton para1={item.data.title} />
+            <SubscribeButton para1={item.data.display_name_prefixed} />
           </Card>
         )}
       </>
@@ -169,8 +174,8 @@ const Search = ({ navigation }: any) => {
         />
         <Button onPress={searchSubReddit}>Search</Button>
         {subRedditInfo &&
-          subRedditInfo.data.children.map((i) => {
-            return <Category data={i} />;
+          subRedditInfo.data.children.map((i, idx) => {
+            return <Category key={idx} data={i} />;
           })}
       </ScrollView>
     </Layout>

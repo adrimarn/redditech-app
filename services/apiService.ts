@@ -333,8 +333,7 @@ export const ApiService = {
     }
   },
   hasSubscribed: async (subredditName: string, accessToken: string) => {
-    const url = `https://oauth.reddit.com/r/${subredditName.slice(3)}/about`;
-
+    const url = `https://oauth.reddit.com/r/${subredditName.slice(2)}/about`;
     const response = await fetchData(url, accessToken);
 
     return response.data.user_is_subscriber;
