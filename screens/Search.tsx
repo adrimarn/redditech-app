@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
-import { StyleSheet, Image, View, RefreshControl } from "react-native";
+import {
+  StyleSheet,
+  Image,
+  View,
+  RefreshControl,
+  FlatList,
+  SafeAreaView,
+} from "react-native";
 import {
   Layout,
   Card,
@@ -18,6 +25,7 @@ const Search = ({ navigation }: any) => {
   const [subRedditName, setSubRedditName] = useState<string>();
   const [subRedditInfo, setSubRedditInfo] = useState<SubRedditInformation>();
   const [refreshing, setRefreshing] = React.useState(false);
+  const [lastSubRedditId, setLastSubRedditId] = React.useState("");
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -74,7 +82,10 @@ const Search = ({ navigation }: any) => {
   };
 
   const searchSubReddit = async () => {
-    const data = await ApiService.getSubRedditByName(subRedditName as string);
+    const data = await ApiService.getSubRedditByName(
+      subRedditName,
+      lastSubRedditId
+    );
     setSubRedditInfo(data);
   };
 
@@ -159,26 +170,67 @@ const Search = ({ navigation }: any) => {
     );
   };
 
+  const handleScrollEnd = async () => {
+    if (subRedditInfo && subRedditInfo?.data.children.length > 0) {
+      setLastSubRedditId(
+        `?after=
+        ${
+          subRedditInfo.data.children[subRedditInfo.data.children.length - 1]
+            .data.id
+        }`
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (lastSubRedditId !== "") {
+      const test = ApiService.getSubRedditByName(
+        subRedditName,
+        lastSubRedditId
+      );
+      test.then((data) => {
+        setSubRedditInfo((prevState) => ({ ...prevState, ...data }));
+      });
+    }
+  }, [lastSubRedditId]);
+
+  const SubRedditCards = () => {
+    return (
+      <Layout style={styles.container}>
+        <View>
+          <ScrollView
+            contentContainerStyle={{ alignItems: "center" }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
+            {subRedditInfo &&
+              subRedditInfo.data.children.map((i, idx) => {
+                return <Category key={idx} data={i} />;
+              })}
+          </ScrollView>
+        </View>
+      </Layout>
+    );
+  };
+
   return (
-    <Layout style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{ alignItems: "center" }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Input
           style={styles.input}
           placeholder="Search a subbredit name"
           onChangeText={onChange}
         />
         <Button onPress={searchSubReddit}>Search</Button>
-        {subRedditInfo &&
-          subRedditInfo.data.children.map((i, idx) => {
-            return <Category key={idx} data={i} />;
-          })}
-      </ScrollView>
-    </Layout>
+      </View>
+      <FlatList
+        onEndReached={handleScrollEnd}
+        data={subRedditInfo?.data.children}
+        renderItem={SubRedditCards}
+        keyExtractor={(item) => item.data.id}
+      />
+    </SafeAreaView>
   );
 };
 

@@ -178,8 +178,11 @@ export const ApiService = {
    * Gets the user's subscribed subreddits using the provided token.
    * @param subredditName - The name of the subreddit to search for.
    */
-  getSubRedditByName: async (subredditName: string) => {
-    const url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}`;
+  getSubRedditByName: async (
+    subredditName: string | undefined,
+    lastItem: string | undefined
+  ) => {
+    const url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}${lastItem}`;
     return await fetchData(url);
   },
 
