@@ -1,5 +1,6 @@
 import Toast from "react-native-toast-message";
 import { CategoryItemProps } from "../components/CategoryItem";
+import { PostType } from "../components/PostItem";
 
 /**
  * Fetches data from the specified URL with the provided token.
@@ -49,17 +50,6 @@ export type UserPreferencesDataType = {
   nightmode: boolean;
   mark_messages_read: boolean;
   highlight_controversial: boolean;
-};
-
-export type PostType = {
-  id: string;
-  title: string;
-  author: string;
-  subreddit?: string;
-  subreddit_name_prefixed?: string;
-  thumbnail: string;
-  url: string;
-  created_utc: Date;
 };
 
 export type dataInfoSubbredit = {

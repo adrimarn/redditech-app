@@ -9,6 +9,7 @@ import { useAuthAccessToken } from "../../contexts/AuthContext";
 import { REDDIT_CLIENT_ID, REDDIT_REDIRECT_URI } from "@env";
 import { Layout, Text, Button } from "@ui-kitten/components";
 import Toast from "react-native-toast-message";
+import RedditLogo from "../../assets/reddit-logo.svg"
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -47,10 +48,23 @@ export function SignIn() {
   }, [response]);
 
   return (
-    <Layout style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <Layout
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#ff4500",
+      }}
+    >
+        <RedditLogo width={250} height={150}/>
+
       <Text category="h1">REDDITECH</Text>
+
+      <Text>Reddit for tech lovers</Text>
       <Button
         style={{ marginTop: 20 }}
+        appearance="outline"
+        status="control"
         disabled={!request}
         onPress={() => {
           promptAsync();
@@ -58,6 +72,7 @@ export function SignIn() {
       >
         Login
       </Button>
+
     </Layout>
   );
 }
