@@ -2,15 +2,18 @@ import React, { createContext, useState, useRef, useContext } from "react";
 import BottomSheet from "reanimated-bottom-sheet";
 
 interface ModalContextType {
-  handleOpenModal: (content: React.ReactNode) => void;
+  handleOpenModal: (
+    content: React.ReactNode,
+    snapPoints?: (string | number)[]
+  ) => void;
   handleCloseModal: () => void;
-  setSnapPoints: React.Dispatch<React.SetStateAction<(string | number)[]>>;
+  bottomSheetRef: React.RefObject<BottomSheet>;
 }
 
 export const ModalContext = createContext<ModalContextType>({
   handleOpenModal: () => {},
   handleCloseModal: () => {},
-  setSnapPoints: () => {},
+  bottomSheetRef: { current: null },
 });
 
 export const useModal = () => useContext(ModalContext);
@@ -26,7 +29,13 @@ const ModalProvider = ({ children }: any) => {
   ]);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const handleOpenModal = (content: React.ReactNode) => {
+  const handleOpenModal = (
+    content: React.ReactNode,
+    snapPoints?: (string | number)[]
+  ) => {
+    if (snapPoints) {
+      setSnapPoints(snapPoints);
+    }
     setModalContent(content);
     bottomSheetRef.current?.snapTo(0);
   };
@@ -39,7 +48,7 @@ const ModalProvider = ({ children }: any) => {
 
   return (
     <ModalContext.Provider
-      value={{ handleOpenModal, handleCloseModal, setSnapPoints }}
+      value={{ handleOpenModal, handleCloseModal, bottomSheetRef }}
     >
       {children}
       <BottomSheet

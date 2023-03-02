@@ -1,39 +1,46 @@
 import React, { useEffect } from "react";
 import { Layout, Text } from "@ui-kitten/components";
-import { ApiService, UserDataType } from "../services/apiService";
+import { ApiService } from "../services/apiService";
 import { useAuthAccessToken } from "../contexts/AuthContext";
-import { Button } from "react-native";
+import { FlatList, SafeAreaView } from "react-native";
+import PostItem, { PostType } from "../components/PostItem";
 
 export const HomeScreen = () => {
-  const { accessToken, signOut } = useAuthAccessToken();
-  const [userData, setUserData] = React.useState<UserDataType>();
+  const { accessToken } = useAuthAccessToken();
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [posts, setPosts] = React.useState<PostType[]>([]);
 
   useEffect(() => {
-    if (accessToken) {
-      setLoading(true);
-      ApiService.getUser(accessToken).then((res) => {
-        setUserData(res);
+    const fetchPosts = async () => {
+      try {
+        const posts = await ApiService.getSubscribedPosts(accessToken);
+        setPosts(posts);
+      } catch (error) {
+        console.log(error);
+      } finally {
         setLoading(false);
-      });
-    }
-  }, [accessToken]);
+      }
+    };
+    fetchPosts();
+  }, []);
 
-  const Welcome = () => {
-    if (userData) return <Text category="h1">Welcome {userData.name}!</Text>;
-    else return <Text category="h1">Welcome!</Text>;
-  };
+  const renderItem = ({ item }: { item: PostType }) => <PostItem post={item} />;
+
   return (
     <Layout style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      {loading ? (
-        <Text category="h1">Loading...</Text>
-      ) : (
-        <>
-          <Welcome />
-          <Text>You are successfully logged in!</Text>
-          <Button title={"Logout"} onPress={signOut} />
-        </>
-      )}
+      <SafeAreaView>
+        {loading ? (
+          <Text category="h1">Loading...</Text>
+        ) : (
+          <>
+            <FlatList
+              data={posts}
+              renderItem={renderItem}
+              keyExtractor={(item) => item?.id}
+            />
+          </>
+        )}
+      </SafeAreaView>
     </Layout>
   );
 };

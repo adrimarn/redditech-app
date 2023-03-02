@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
-import { StyleSheet, Image, View, RefreshControl } from "react-native";
+import {StyleSheet, Image, View, RefreshControl, SafeAreaView} from "react-native";
 import {
   Layout,
   Card,
@@ -29,11 +29,10 @@ const Search = ({ navigation }: any) => {
 
   const styles = StyleSheet.create({
     input: {
-      marginVertical: 50,
+      marginVertical: 10,
     },
     container: {
       flexGrow: 1,
-      backgroundColor: theme["color-basic-900"],
       paddingHorizontal: 8,
     },
     cardContainer: {
@@ -161,18 +160,19 @@ const Search = ({ navigation }: any) => {
 
   return (
     <Layout style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{ alignItems: "center" }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+      <SafeAreaView />
         <Input
           style={styles.input}
           placeholder="Search a subbredit name"
           onChangeText={onChange}
         />
         <Button onPress={searchSubReddit}>Search</Button>
+      <ScrollView
+          contentContainerStyle={{ alignItems: "center" }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+      >
         {subRedditInfo &&
           subRedditInfo.data.children.map((i, idx) => {
             return <Category key={idx} data={i} />;

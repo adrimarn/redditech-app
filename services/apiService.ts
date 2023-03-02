@@ -103,19 +103,18 @@ export const ApiService = {
     limit: number = 25
   ): Promise<PostType[]> => {
     const subreddits = await ApiService.getSubscribedSubreddits(token, limit);
-
+    // Get the names of the subreddits
+    const subredditsNames = subreddits.data.children.map(
+        (subreddit: any) => subreddit.data.display_name
+    );
     const posts = await Promise.all(
-      subreddits.map(async (subreddit: string) => {
-        const postsUrl = `https://oauth.reddit.com/r/${subreddit}/new?limit=${limit}`;
+        subredditsNames.map(async (subreddit: string) => {
+        const postsUrl = `https://oauth.reddit.com/r/${subreddit}/new?limit=${limit}&raw_json=1`;
         const postsData = await fetchData(postsUrl, token);
 
         return postsData.data.children.map(
           ({ data }: any): PostType => ({
-            id: data.id,
-            title: data.title,
-            author: data.author,
-            subreddit_name_prefixed: data.subreddit_name_prefixed,
-            url: data.url,
+            ...data,
             thumbnail: ["self", "nsfw", "default"].includes(data.thumbnail)
               ? null
               : data.thumbnail,
@@ -145,8 +144,8 @@ export const ApiService = {
   getSubscribedSubreddits: async (
     token: string,
     limit: number = 25
-  ): Promise<any[]> => {
-    const url = `https://oauth.reddit.com/subreddits/mine/subscriber?limit=${limit}`;
+  ): Promise<any> => {
+    const url = `https://oauth.reddit.com/subreddits/mine/subscriber?limit=${limit}&raw_json=1`;
     return await fetchData(url, token);
   },
 

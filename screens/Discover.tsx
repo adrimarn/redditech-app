@@ -48,14 +48,14 @@ export const Discover = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#222B45" }}>
-      <Layout style={styles.container}>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <Spinner size="giant" />
-          </View>
-        ) : (
-          <>
+    <Layout style={styles.container}>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Spinner size="giant" />
+        </View>
+      ) : (
+        <>
+          <SafeAreaView>
             {subreddits.length > 0 ? (
               <FlatList
                 data={subreddits}
@@ -75,10 +75,10 @@ export const Discover = () => {
                 <Text category="h6">No posts to show</Text>
               </View>
             )}
-          </>
-        )}
-      </Layout>
-    </SafeAreaView>
+          </SafeAreaView>
+        </>
+      )}
+    </Layout>
   );
 };
 

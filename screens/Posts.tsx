@@ -1,17 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
-import { StyleSheet, Image, View, RefreshControl } from "react-native";
-import {
-  Layout,
-  Card,
-  Input,
-  useTheme,
-  Text,
-  Icon,
-  Button,
-} from "@ui-kitten/components";
-import { ApiService } from "../services/apiService";
-import { SubRedditInformation } from "../services/apiService";
+import { StyleSheet, View } from "react-native";
+import { Layout, useTheme, Text } from "@ui-kitten/components";
 import { ScrollView } from "react-native-gesture-handler";
 
 const Posts = ({ navigation, route }: any) => {
@@ -33,9 +23,7 @@ const Posts = ({ navigation, route }: any) => {
       alignSelf: "center",
       marginVertical: 16,
       borderRadius: 6,
-      marginTop: 80
-      
-      
+      marginTop: 80,
     },
     title: {
       fontSize: 24,
@@ -50,7 +38,7 @@ const Posts = ({ navigation, route }: any) => {
     <Layout style={styles.container}>
       <ScrollView contentContainerStyle={{ alignItems: "center" }}>
         <View style={styles.cardContainer}>
-          <Text style={{textAlign: "center"}}>{route.params.titleName}</Text>
+          <Text style={{ textAlign: "center" }}>{route.params.titleName}</Text>
         </View>
       </ScrollView>
     </Layout>

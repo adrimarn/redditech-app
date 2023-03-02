@@ -25,7 +25,7 @@ import { useModal } from "../contexts/ModalContext";
 const UserProfile = () => {
   const { accessToken, signOut } = useAuthAccessToken();
   const [userData, setUserData] = React.useState<UserDataType>();
-  const { handleOpenModal, handleCloseModal, setSnapPoints } = useModal();
+  const { handleOpenModal, handleCloseModal } = useModal();
   const theme = useTheme();
 
   const styles = StyleSheet.create({
@@ -88,20 +88,19 @@ const UserProfile = () => {
   }, []);
 
   const openUserPreferences = () => {
-    setSnapPoints(["82", "0", "0"]);
-    handleOpenModal(<ModalContent/>);
+    handleOpenModal(<ModalContent />, ["82", "0", "0"]);
   };
 
   const ModalContent = () => {
     const [userPreferencesData, setUserPreferencesData] =
-    React.useState<UserPreferencesDataType>({
-      accept_pms: "",
-      email_messages: false,
-      activity_relevant_ads: false,
-      nightmode: false,
-      mark_messages_read: false,
-      highlight_controversial: false,
-    });
+      React.useState<UserPreferencesDataType>({
+        accept_pms: "",
+        email_messages: false,
+        activity_relevant_ads: false,
+        nightmode: false,
+        mark_messages_read: false,
+        highlight_controversial: false,
+      });
 
     const options = [
       { label: "Everyone", value: "everyone" },
@@ -132,7 +131,7 @@ const UserProfile = () => {
 
     React.useEffect(() => {
       fetchUserPreferencesData();
-    }, [])
+    }, []);
 
     return (
       <View
