@@ -62,23 +62,16 @@ export type PostType = {
   created_utc: Date;
 };
 
+//TODO: Duplicate type ?
 export type dataInfoSubbredit = {
-  data: {
-    title: string;
-    display_name_prefixed: string;
-    subscribers: string;
-    public_description: string;
-    header_img: string;
-    user_is_subscriber: string;
-    id: string;
-  };
-};
-
-export type SubRedditInformation = {
-  data: {
-    after: string;
-    children: dataInfoSubbredit[];
-  };
+  title: string;
+  display_name_prefixed: string;
+  subscribers: string;
+  public_description: string;
+  header_img: string;
+  user_is_subscriber: string;
+  id: string;
+  name: string;
 };
 
 /**
@@ -177,17 +170,21 @@ export const ApiService = {
   /**
    * Gets the user's subscribed subreddits using the provided token.
    * @param subredditName - The name of the subreddit to search for.
+   * @param before
+   * @param after
+   * @param limit
    */
   getSubRedditByName: async (
     subredditName: string | undefined,
     before?: string,
-    after?: string 
-  ) => {
-    
-    let url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}`;
-    if(before) url += `&before=${before}`;
-    if(after) url += `&after=${after}`;
-    return await fetchData(url);
+    after?: string,
+    limit: number = 25
+  ): Promise<dataInfoSubbredit[]> => {
+    let url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}&limit=${limit}`;
+    if (before) url += `&before=${before}`;
+    if (after) url += `&after=${after}`;
+    const res = await fetchData(url);
+    return res.data.children.map((subreddit: any) => subreddit.data);
   },
 
   /**
