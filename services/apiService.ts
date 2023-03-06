@@ -105,14 +105,21 @@ export const ApiService = {
     const subreddits = await ApiService.getSubscribedSubreddits(token, limit);
     // Get the names of the subreddits
     const subredditsNames = subreddits.data.children.map(
-        (subreddit: any) => subreddit.data.display_name
+      (subreddit: any) => subreddit.data.display_name
     );
     const posts = await Promise.all(
-        subredditsNames.map(async (subreddit: string) => {
-        const postsUrl = `https://oauth.reddit.com/r/${subreddit}/new?limit=${limit}&raw_json=1`;
-        const postsData = await fetchData(postsUrl, token);
+      subredditsNames.map(async (subreddit: string) => {
+        // const postsUrl = `https://oauth.reddit.com/r/${subreddit}/new?limit=${limit}&raw_json=1`;
+        // const postsData = await fetchData(postsUrl, token);
 
-        return postsData.data.children.map(
+        const postsData = await ApiService.getSubredditPosts(
+          subreddit,
+          token,
+          "new",
+          limit
+        );
+
+        return postsData.map(
           ({ data }: any): PostType => ({
             ...data,
             thumbnail: ["self", "nsfw", "default"].includes(data.thumbnail)
@@ -326,5 +333,20 @@ export const ApiService = {
     const response = await fetchData(url, accessToken);
 
     return response.data.user_is_subscriber;
+  },
+
+  getSubredditPosts: async (
+    subredditName: string,
+    accessToken: string,
+    where: "hot" | "new" | "random" | "rising",
+    limit: number = 10,
+    before?: string,
+    after?: string
+  ): Promise<PostType[]> => {
+    let url = `https://oauth.reddit.com/r/${subredditName}/${where}?limit=${limit}&raw_json=1`;
+    if (before) url += `&before=${before}`;
+    if (after) url += `&after=${after}`;
+    const response = await fetchData(url, accessToken);
+    return response.data.children;
   },
 };

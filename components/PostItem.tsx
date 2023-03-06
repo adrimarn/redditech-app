@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Text, Avatar } from "@ui-kitten/components";
-import { ImageBackground, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 
 export type PostType = {
   id: string;
@@ -24,10 +24,9 @@ export type PostType = {
 
 const PostItem = ({ post }: { post: PostType }) => {
   const ImageHeader = () => (
-    <ImageBackground
+    <Image
       style={styles.image}
-      source={{ uri: post?.preview?.images[0].source.url }}
-      resizeMode={"cover"}
+      source={{ uri: post?.preview?.images?.[0].source.url }}
     />
   );
 
@@ -36,11 +35,11 @@ const PostItem = ({ post }: { post: PostType }) => {
       style={{
         flexDirection: "row",
         alignItems: "center",
-        marginVertical: 16,
+        margin: 16,
       }}
     >
       <Avatar
-        source={{ uri: "https://i.pravatar.cc/150" }}
+        source={{ uri: "https://i.pravatar.cc/80" }}
         style={{ marginRight: 8 }}
       />
       <Text category="s1">{post.author}</Text>
