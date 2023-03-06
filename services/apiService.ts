@@ -52,23 +52,16 @@ export type UserPreferencesDataType = {
   highlight_controversial: boolean;
 };
 
+//TODO: Duplicate type ?
 export type dataInfoSubbredit = {
-  data: {
-    title: string;
-    display_name_prefixed: string;
-    subscribers: string;
-    public_description: string;
-    header_img: string;
-    user_is_subscriber: string;
-    id: string;
-  };
-};
-
-export type SubRedditInformation = {
-  data: {
-    after: string;
-    children: dataInfoSubbredit[];
-  };
+  title: string;
+  display_name_prefixed: string;
+  subscribers: string;
+  public_description: string;
+  header_img: string;
+  user_is_subscriber: string;
+  id: string;
+  name: string;
 };
 
 /**
@@ -109,8 +102,6 @@ export const ApiService = {
     );
     const posts = await Promise.all(
       subredditsNames.map(async (subreddit: string) => {
-        // const postsUrl = `https://oauth.reddit.com/r/${subreddit}/new?limit=${limit}&raw_json=1`;
-        // const postsData = await fetchData(postsUrl, token);
 
         const postsData = await ApiService.getSubredditPosts(
           subreddit,
@@ -173,10 +164,21 @@ export const ApiService = {
   /**
    * Gets the user's subscribed subreddits using the provided token.
    * @param subredditName - The name of the subreddit to search for.
+   * @param before
+   * @param after
+   * @param limit
    */
-  getSubRedditByName: async (subredditName: string) => {
-    const url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}`;
-    return await fetchData(url);
+  getSubRedditByName: async (
+    subredditName: string | undefined,
+    before?: string,
+    after?: string,
+    limit: number = 25
+  ): Promise<dataInfoSubbredit[]> => {
+    let url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}&limit=${limit}`;
+    if (before) url += `&before=${before}`;
+    if (after) url += `&after=${after}`;
+    const res = await fetchData(url);
+    return res.data.children.map((subreddit: any) => subreddit.data);
   },
 
   /**
