@@ -180,9 +180,13 @@ export const ApiService = {
    */
   getSubRedditByName: async (
     subredditName: string | undefined,
-    lastItem: string | undefined
+    before?: string,
+    after?: string 
   ) => {
-    const url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}${lastItem}`;
+    
+    let url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}`;
+    if(before) url += `&before=${before}`;
+    if(after) url += `&after=${after}`;
     return await fetchData(url);
   },
 

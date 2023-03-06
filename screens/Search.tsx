@@ -84,6 +84,7 @@ const Search = ({ navigation }: any) => {
   const searchSubReddit = async () => {
     const data = await ApiService.getSubRedditByName(
       subRedditName,
+      undefined,
       lastSubRedditId
     );
     setSubRedditInfo(data);
@@ -154,7 +155,7 @@ const Search = ({ navigation }: any) => {
             <View style={styles.imgContainer}>
               <Image
                 style={styles.img}
-                source={{ uri: item.data.header_img }}
+                source={{ uri: item.data.header_img ? item.data.header_img : './assets/splash.png' }}
               />
             </View>
 
@@ -173,11 +174,8 @@ const Search = ({ navigation }: any) => {
   const handleScrollEnd = async () => {
     if (subRedditInfo && subRedditInfo?.data.children.length > 0) {
       setLastSubRedditId(
-        `?after=
-        ${
-          subRedditInfo.data.children[subRedditInfo.data.children.length - 1]
-            .data.id
-        }`
+        subRedditInfo.data.children[subRedditInfo.data.children.length - 1].data
+          .id
       );
     }
   };
@@ -186,6 +184,7 @@ const Search = ({ navigation }: any) => {
     if (lastSubRedditId !== "") {
       const test = ApiService.getSubRedditByName(
         subRedditName,
+        undefined,
         lastSubRedditId
       );
       test.then((data) => {
