@@ -23,12 +23,13 @@ export type PostType = {
 };
 
 const PostItem = ({ post }: { post: PostType }) => {
-  const ImageHeader = () => (
-    <Image
-      style={styles.image}
-      source={{ uri: post?.preview?.images?.[0].source.url }}
-    />
-  );
+  const ImageHeader = () =>
+    post?.preview?.images?.[0].source.url ? (
+      <Image
+        style={styles.image}
+        source={{ uri: post.preview.images[0].source.url }}
+      />
+    ) : null;
 
   const Footer = () => (
     <View
@@ -77,9 +78,6 @@ const styles = StyleSheet.create({
     width: "100%",
     marginVertical: -16,
     marginBottom: 0,
-  },
-  imageStyle: {
-    //borderRadius: 8,
   },
 });
 
