@@ -4,15 +4,18 @@ import {
   BottomTabBarProps,
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
-import { Discover } from "../screens/Discover";
-import Profile from "../screens/Profile";
-import Search from "../screens/Search";
 import { BottomNavigation, BottomNavigationTab } from "@ui-kitten/components";
 import { RenderProp } from "@ui-kitten/components/devsupport";
 import { ImageProps } from "react-native";
-import Posts from "../screens/Posts";
+
 import { Feather } from "@expo/vector-icons";
 import ModalProvider from "../contexts/ModalContext";
+import { createStackNavigator } from "@react-navigation/stack";
+import Posts from "../screens/Posts";
+import Discover from "../screens/Discover";
+import Profile from "../screens/Profile";
+import Search from "../screens/Search";
+import Post from "../screens/Post";
 
 const Tab = createBottomTabNavigator();
 
@@ -36,13 +39,32 @@ const SearchIcon: RenderProp<Partial<ImageProps>> = (props) => (
 //   <Icon {...props} name="message-square-outline" />
 // );
 
+const HomeStack = createStackNavigator();
+
+function HomeStackScreen() {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Post"
+        component={Post}
+        options={{ headerShown: false }}
+      />
+    </HomeStack.Navigator>
+  );
+}
+
 export const AppStack = () => (
   <ModalProvider>
     <Tab.Navigator
       tabBar={(props) => <BottomTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="HomeStack" component={HomeStackScreen} />
       <Tab.Screen name="Feed" component={Discover} />
       <Tab.Screen name="Profile" component={Profile} />
       <Tab.Screen name="Search" component={Search} />
