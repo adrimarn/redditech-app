@@ -22,7 +22,7 @@ export type PostType = {
   };
 };
 
-const PostItem = ({ post }: { post: PostType }) => {
+const PostItem = ({ post, onPress }: { post: PostType; onPress: any }) => {
   const ImageHeader = () =>
     post?.preview?.images?.[0].source.url ? (
       <Image
@@ -49,7 +49,7 @@ const PostItem = ({ post }: { post: PostType }) => {
 
   return (
     <>
-      <Card style={{ margin: 10 }} header={<ImageHeader />} footer={<Footer />}>
+      <Card style={{ margin: 10 }} header={<ImageHeader />} footer={<Footer />} onPress={onPress}>
         <View
           style={{
             flexDirection: "column",

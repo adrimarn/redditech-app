@@ -38,11 +38,14 @@ export const HomeScreen = ({ navigation }: any) => {
   };
 
   const RenderItem = useCallback(
-    ({ item }: { item: PostType }) => <PostItem post={item} />,
+    ({ item, onPress }: { item: PostType; onPress: any }) => (
+      <PostItem post={item} onPress={onPress} />
+    ),
     []
   );
 
   const onPostPress = (postID: string) => {
+    //console.log("Post pressed: ", postID);
     navigation.navigate("Post", { postID });
   };
 
@@ -58,7 +61,10 @@ export const HomeScreen = ({ navigation }: any) => {
               data={posts}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => onPostPress(item.id)}>
-                  <RenderItem item={item} />
+                  <RenderItem
+                    item={item}
+                    onPress={() => onPostPress(item.id)}
+                  />
                 </TouchableOpacity>
               )}
               keyExtractor={(item) => item?.id}
