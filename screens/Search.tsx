@@ -1,80 +1,65 @@
 import React, { useEffect, useState } from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
-import {StyleSheet, Image, View, RefreshControl, SafeAreaView} from "react-native";
-import {
-  Layout,
-  Card,
-  Input,
-  useTheme,
-  Text,
-  Button,
-} from "@ui-kitten/components";
+import { StyleSheet, Image, View, FlatList, SafeAreaView } from "react-native";
+import { Layout, Card, Input, Text, Button } from "@ui-kitten/components";
 import { ApiService, dataInfoSubbredit } from "../services/apiService";
-import { SubRedditInformation } from "../services/apiService";
-import { ScrollView } from "react-native-gesture-handler";
 
 const Search = ({ navigation }: any) => {
   const { accessToken } = useAuthAccessToken();
-  const [subRedditName, setSubRedditName] = useState<string>();
-  const [subRedditInfo, setSubRedditInfo] = useState<SubRedditInformation>();
+  const [subredditInput, setSubredditInput] = useState<string>();
+  const [subRedditInfo, setSubRedditInfo] = useState<
+    dataInfoSubbredit[] | undefined
+  >();
   const [refreshing, setRefreshing] = React.useState(false);
+  const [lastSubRedditId, setLastSubRedditId] = React.useState<
+    string | undefined
+  >(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastSubRedditName, setLastSubRedditName] = React.useState<string>();
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await fetchSubReddit(true, true);
+    } catch (error) {
+      console.error(error);
+    } finally {
       setRefreshing(false);
-    }, 2000);
-  }, []);
-  const theme = useTheme();
-
-  const styles = StyleSheet.create({
-    input: {
-      marginVertical: 10,
-    },
-    container: {
-      flexGrow: 1,
-      paddingHorizontal: 8,
-    },
-    cardContainer: {
-      width: "90%",
-      alignSelf: "center",
-      marginVertical: 16,
-      borderRadius: 6,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      marginVertical: 8,
-      textAlign: "center",
-      marginHorizontal: 10,
-    },
-    icon: {
-      width: "100%",
-      height: 32,
-      tintColor: theme["color-primary-500"],
-      marginRight: 8,
-      textAlign: "center",
-      marginVertical: 10,
-    },
-    img: {
-      width: 50,
-      height: 50,
-    },
-    imgContainer: {
-      flex: 1,
-      alignContent: "center",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-  });
-
-  const onChange = (value: string) => {
-    setSubRedditName(value);
+    }
   };
 
-  const searchSubReddit = async () => {
-    const data = await ApiService.getSubRedditByName(subRedditName as string);
-    setSubRedditInfo(data);
+  const onInputChange = (value: string) => {
+    setSubredditInput(value);
+  };
+
+  const handleSearch = async () => {
+    await fetchSubReddit(true);
+  };
+
+  const fetchSubReddit = async (isReset = false, isRefresh = false) => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    // Définir lastSubRedditId sur undefined si isReset est true
+    const lastId = isReset ? undefined : lastSubRedditId;
+    const lastName = isRefresh ? lastSubRedditName : subredditInput;
+
+    const data = await ApiService.getSubRedditByName(
+      lastName,
+      undefined,
+      lastId,
+      10
+    );
+
+    setSubRedditInfo((prevState) => {
+      if (prevState && !isReset) {
+        return [...prevState, ...data];
+      }
+      return data;
+    });
+    setLastSubRedditId(data[data.length - 1].name);
+    setLastSubRedditName(lastName);
+    setIsLoading(false);
   };
 
   const onPress = (titleName: string) => {
@@ -83,7 +68,14 @@ const Search = ({ navigation }: any) => {
     });
   };
 
-  const Category = ({ data: item }: { data: dataInfoSubbredit }) => {
+  const handleScrollEnd = async () => {
+    await fetchSubReddit();
+  };
+  const renderItem = ({ item }: { item: dataInfoSubbredit }) => (
+    <Category item={item} />
+  );
+
+  const Category = ({ item }: { item: dataInfoSubbredit }) => {
     const SubscribeButton = (props: any) => {
       const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -135,23 +127,25 @@ const Search = ({ navigation }: any) => {
       <>
         {item && (
           <Card
-            onPress={() => onPress(item.data.display_name_prefixed)}
-            key={item.data.id}
+            onPress={() => onPress(item.display_name_prefixed)}
+            key={item.id}
             style={styles.cardContainer}
           >
             <View style={styles.imgContainer}>
               <Image
                 style={styles.img}
-                source={{ uri: item.data.header_img }}
+                source={{
+                  uri: item.header_img ? item.header_img : undefined,
+                }}
               />
             </View>
 
-            <Text style={styles.icon}>{item.data.subscribers} subscribers</Text>
-            <Text>{item.data.user_is_subscriber}</Text>
-            <Text category="h6">{item.data.display_name_prefixed}</Text>
-            <Text>{item.data.public_description}</Text>
+            <Text style={styles.icon}>{item.subscribers} subscribers</Text>
+            <Text>{item.user_is_subscriber}</Text>
+            <Text category="h6">{item.display_name_prefixed}</Text>
+            <Text>{item.public_description}</Text>
 
-            <SubscribeButton para1={item.data.display_name_prefixed} />
+            <SubscribeButton para1={item.display_name_prefixed} />
           </Card>
         )}
       </>
@@ -160,26 +154,68 @@ const Search = ({ navigation }: any) => {
 
   return (
     <Layout style={styles.container}>
-      <SafeAreaView />
-        <Input
-          style={styles.input}
-          placeholder="Search a subbredit name"
-          onChangeText={onChange}
+      <SafeAreaView>
+        <View>
+          <Input
+            style={styles.input}
+            placeholder="Search a subbredit name"
+            onChangeText={onInputChange}
+            value={subredditInput}
+          />
+          <Button onPress={handleSearch}>Search</Button>
+        </View>
+        <FlatList
+          data={subRedditInfo}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          onEndReached={handleScrollEnd}
+          onEndReachedThreshold={0.2}
+          onRefresh={onRefresh}
+          refreshing={refreshing}
         />
-        <Button onPress={searchSubReddit}>Search</Button>
-      <ScrollView
-          contentContainerStyle={{ alignItems: "center" }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-      >
-        {subRedditInfo &&
-          subRedditInfo.data.children.map((i, idx) => {
-            return <Category key={idx} data={i} />;
-          })}
-      </ScrollView>
+      </SafeAreaView>
     </Layout>
   );
 };
 
 export default Search;
+
+const styles = StyleSheet.create({
+  input: {
+    marginVertical: 50,
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 8,
+  },
+  cardContainer: {
+    width: "90%",
+    alignSelf: "center",
+    marginVertical: 16,
+    borderRadius: 6,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginVertical: 8,
+    textAlign: "center",
+    marginHorizontal: 10,
+  },
+  icon: {
+    width: "100%",
+    height: 32,
+    marginRight: 8,
+    textAlign: "center",
+    marginVertical: 10,
+  },
+  img: {
+    width: 50,
+    height: 50,
+  },
+  imgContainer: {
+    flex: 1,
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

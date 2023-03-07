@@ -5,7 +5,7 @@ import { Spinner, Layout, Text } from "@ui-kitten/components";
 import { CategoryItem, CategoryItemProps } from "../components/CategoryItem";
 import { useFocusEffect } from "@react-navigation/native";
 
-export const Discover = () => {
+const Discover = () => {
   //const [subscribedPosts, setSubscribedPosts] = useState<PostType[]>([]);
   const [subreddits, setSubreddits] = useState<CategoryItemProps[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,6 +81,8 @@ export const Discover = () => {
     </Layout>
   );
 };
+
+export default Discover;
 
 const styles = StyleSheet.create({
   container: {
