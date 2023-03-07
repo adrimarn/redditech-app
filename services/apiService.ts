@@ -102,7 +102,6 @@ export const ApiService = {
     );
     const posts = await Promise.all(
       subredditsNames.map(async (subreddit: string) => {
-
         const postsData = await ApiService.getSubredditPosts(
           subreddit,
           token,
