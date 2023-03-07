@@ -349,4 +349,15 @@ export const ApiService = {
     const response = await fetchData(url, accessToken);
     return response.data.children;
   },
+
+  getPost: async (
+    accessToken: string,
+    permalink: string,
+  ): Promise<any> => {
+    const url = `https://oauth.reddit.com${permalink}&raw_json=1`;
+    console.log("url:", url)
+    const response = await fetchData(url, accessToken);
+    console.log("ici:", response[0].data.children[0])
+    return response[0].data.children[0];
+  },
 };
