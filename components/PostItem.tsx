@@ -7,6 +7,7 @@ export type PostType = {
   permalink: string;
   title: string;
   author: string;
+  selftext: string;
   subreddit?: string;
   subreddit_name_prefixed?: string;
   thumbnail: string;
