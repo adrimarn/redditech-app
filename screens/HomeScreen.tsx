@@ -44,9 +44,8 @@ export const HomeScreen = ({ navigation }: any) => {
     []
   );
 
-  const onPostPress = (postID: string) => {
-    //console.log("Post pressed: ", postID);
-    navigation.navigate("Post", { postID });
+  const onPostPress = (post: PostType) => {
+    navigation.navigate("Post", { post });
   };
 
   return (
@@ -60,10 +59,10 @@ export const HomeScreen = ({ navigation }: any) => {
             <FlatList
               data={posts}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => onPostPress(item.id)}>
+                <TouchableOpacity onPress={() => onPostPress(item)}>
                   <RenderItem
                     item={item}
-                    onPress={() => onPostPress(item.id)}
+                    onPress={() => onPostPress(item)}
                   />
                 </TouchableOpacity>
               )}

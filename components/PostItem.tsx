@@ -4,8 +4,10 @@ import { Image, StyleSheet, View } from "react-native";
 
 export type PostType = {
   id: string;
+  permalink: string;
   title: string;
   author: string;
+  selftext: string;
   subreddit?: string;
   subreddit_name_prefixed?: string;
   thumbnail: string;

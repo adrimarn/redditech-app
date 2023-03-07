@@ -350,4 +350,14 @@ export const ApiService = {
     const response = await fetchData(url, accessToken);
     return response.data.children;
   },
+
+  getCommentaries: async (
+    accessToken: string,
+    permalink: string,
+  ): Promise<any> => {
+    const url = `https://oauth.reddit.com${permalink}&raw_json=1`;
+    console.log("url:", url)
+    const response = await fetchData(url, accessToken);
+    return response;
+  },
 };
