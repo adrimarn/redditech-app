@@ -6,7 +6,6 @@ import { CategoryItem, CategoryItemProps } from "../components/CategoryItem";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Discover = () => {
-  //const [subscribedPosts, setSubscribedPosts] = useState<PostType[]>([]);
   const [subreddits, setSubreddits] = useState<CategoryItemProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = React.useState(false);

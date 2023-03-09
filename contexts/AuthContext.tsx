@@ -18,7 +18,6 @@ export type AuthAccessTokenContent = {
 
 export const AuthContext = createContext<AuthAccessTokenContent>({
   accessToken: "",
-  //setAccessToken: () => {},
   signIn: () => {},
   signOut: () => {},
   loading: false
@@ -44,8 +43,7 @@ export const AuthProvider = ({ children }: any) => {
         const tokenIsValid = await ApiService.validateToken(accessToken);
         if (tokenIsValid) {
           setAccessToken(accessToken);
-          console.log("Token is valid");
-          console.log(accessToken);
+          console.log("Token:", accessToken);
         }
       }
     } catch (e) {

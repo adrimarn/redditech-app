@@ -13,7 +13,7 @@ export const HomeScreen = ({ navigation }: any) => {
 
   const fetchPosts = async () => {
     try {
-      const posts = await ApiService.getSubscribedPosts(accessToken, 10);
+      const posts = await ApiService.getSubscribedPosts(accessToken, 30);
       setPosts(posts);
     } catch (error) {
       console.log(error);

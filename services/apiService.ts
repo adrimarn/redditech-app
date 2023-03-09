@@ -353,11 +353,17 @@ export const ApiService = {
 
   getCommentaries: async (
     accessToken: string,
-    permalink: string,
+    permalink: string
   ): Promise<any> => {
     const url = `https://oauth.reddit.com${permalink}&raw_json=1`;
-    console.log("url:", url)
-    const response = await fetchData(url, accessToken);
-    return response;
+    console.log("url:", url);
+    return await fetchData(url, accessToken);
+  },
+
+  getUserAvatar: async (username: string) => {
+    const response = await fetchData(
+      `https://www.reddit.com/user/${username}/about.json`
+    );
+    return response.data.icon_img;
   },
 };
