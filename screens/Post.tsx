@@ -11,9 +11,18 @@ import {
 } from "@ui-kitten/components";
 import { RenderProp } from "@ui-kitten/components/devsupport";
 import { useEffect, useState } from "react";
-import { ImageProps, SafeAreaView, StyleSheet, View } from "react-native";
+import {
+  ImageProps,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Image,
+  ImageBackground,
+} from "react-native";
+import { PostType } from "../components/PostItem";
 import { useAuthAccessToken } from "../contexts/AuthContext";
 import { ApiService } from "../services/apiService";
+import theme from "../adrimarn-theme.json";
 
 interface Comment {
   id: string;
@@ -27,6 +36,7 @@ interface Comment {
 
 const Post = ({ navigation, route }: any) => {
   const { accessToken } = useAuthAccessToken();
+  const { post }: { post: PostType } = route.params;
   const [comments, setComments] = useState<Comment[]>([]);
 
   const navigateBack = () => {
@@ -92,6 +102,34 @@ const Post = ({ navigation, route }: any) => {
     </>
   );
 
+  useEffect(() => {
+    console.log(post);
+  }, []);
+
+  const DisplayImageBackGroundPost = () => {
+    return (
+      <View>
+        <ImageBackground
+          style={styles.imagePost}
+          source={{ uri: post.preview?.images[0].source.url as string }}
+        />
+        <View>
+          <Text style={styles.title}>{post.title}</Text>
+        </View>
+      </View>
+    );
+  };
+  const PostHeader = () => {
+    return (
+      <View style={styles.header}>
+        <DisplayImageBackGroundPost />
+        <View style={styles.author}>
+          <Text style={styles.authorText}>{post.author}</Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <Layout style={{ flex: 1 }}>
       <SafeAreaView>
@@ -101,13 +139,8 @@ const Post = ({ navigation, route }: any) => {
           accessoryLeft={BackAction}
         />
         <Divider />
-        <View style={styles.viewPadding}>
-          <Text>permalink: {route.params.permalink}</Text>
-          <Text style={styles.textMargin}>
-            This is a sample post for testing navigation.
-          </Text>
-          <Text>Please use this component to display the post.</Text>
-          <Text style={styles.textMargin}>Thanks!</Text>
+        <View>
+          <PostHeader />
         </View>
         <Divider />
         <List
@@ -128,5 +161,30 @@ const styles = StyleSheet.create({
   },
   textMargin: {
     marginTop: 30,
+  },
+  header: {
+    marginBottom: 20,
+  },
+  imagePost: {
+    margin: 0,
+    padding: 0,
+    width: "100%",
+    height: 200,
+    opacity: 0.4,
+  },
+  author: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: [{ translateX: -50 }, { translateY: -50 }],
+  },
+  authorText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  title: {
+    marginTop: 10,
+    color: theme["color-primary-500"],
+    textAlign: "center",
   },
 });
