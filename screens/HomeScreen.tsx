@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { Layout, Text } from "@ui-kitten/components";
 import { ApiService } from "../services/apiService";
 import { useAuthAccessToken } from "../contexts/AuthContext";
-import { FlatList, SafeAreaView, TouchableOpacity } from "react-native";
+import { FlatList, SafeAreaView } from "react-native";
 import PostItem, { PostType } from "../components/PostItem";
 
 export const HomeScreen = ({ navigation }: any) => {
@@ -59,12 +59,7 @@ export const HomeScreen = ({ navigation }: any) => {
             <FlatList
               data={posts}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => onPostPress(item)}>
-                  <RenderItem
-                    item={item}
-                    onPress={() => onPostPress(item)}
-                  />
-                </TouchableOpacity>
+                <RenderItem item={item} onPress={() => onPostPress(item)} />
               )}
               keyExtractor={(item) => item?.id}
               onRefresh={onRefresh}

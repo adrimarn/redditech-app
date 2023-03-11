@@ -5,7 +5,7 @@ import { Spinner, Layout, Text } from "@ui-kitten/components";
 import { CategoryItem, CategoryItemProps } from "../components/CategoryItem";
 import { useFocusEffect } from "@react-navigation/native";
 
-const Discover = () => {
+const Discover = ({ navigation }: any) => {
   const [subreddits, setSubreddits] = useState<CategoryItemProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -32,6 +32,7 @@ const Discover = () => {
       if (!fetched) {
         fetchSubreddits(true);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetched])
   );
 
@@ -46,6 +47,10 @@ const Discover = () => {
     }
   };
 
+  const onPress = (subreddit: CategoryItemProps) => {
+    navigation.navigate("Posts", { subreddit });
+  };
+
   return (
     <Layout style={styles.container}>
       {loading ? (
@@ -58,7 +63,13 @@ const Discover = () => {
             {subreddits.length > 0 ? (
               <FlatList
                 data={subreddits}
-                renderItem={CategoryItem}
+                renderItem={({ item, index }) => (
+                  <CategoryItem
+                    item={item}
+                    index={index}
+                    onPress={() => onPress(item)}
+                  />
+                )}
                 keyExtractor={(item) => item?.id}
                 onRefresh={onRefresh}
                 refreshing={refreshing}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, Text, Avatar } from "@ui-kitten/components";
 import { Image, StyleSheet, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 export type PostType = {
   id: string;
@@ -25,13 +26,12 @@ export type PostType = {
 };
 
 const PostItem = ({ post, onPress }: { post: PostType; onPress: any }) => {
-  const ImageHeader = () =>
-    post?.preview?.images?.[0].source.url ? (
-      <Image
-        style={styles.image}
-        source={{ uri: post.preview.images[0].source.url }}
-      />
-    ) : null;
+  const ImageHeader = () => (
+    <Image
+      style={styles.image}
+      source={{ uri: post.preview?.images[0].source.url }}
+    />
+  );
 
   const Footer = () => (
     <View
@@ -51,14 +51,22 @@ const PostItem = ({ post, onPress }: { post: PostType; onPress: any }) => {
 
   return (
     <>
-      <Card style={{ margin: 10 }} header={<ImageHeader />} footer={<Footer />} onPress={onPress}>
-        <View
+      <Card
+        style={{ margin: 10 }}
+        header={
+          post?.preview?.images?.[0].source.url ? <ImageHeader /> : undefined
+        }
+        footer={<Footer />}
+        onPress={onPress}
+      >
+        <Animated.View
           style={{
             flexDirection: "column",
             padding: 0,
             marginTop: 10,
             marginBottom: 20,
           }}
+          entering={FadeIn?.delay?.(50)?.duration(300)}
         >
           <Text style={{ marginBottom: 8 }} category="h6">
             {post.title}
@@ -67,7 +75,7 @@ const PostItem = ({ post, onPress }: { post: PostType; onPress: any }) => {
             appearance="hint"
             category="c1"
           >{`Posted in ${post.subreddit_name_prefixed}`}</Text>
-        </View>
+        </Animated.View>
       </Card>
     </>
   );

@@ -1,48 +1,136 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
-import { StyleSheet, View } from "react-native";
-import { Layout, useTheme, Text } from "@ui-kitten/components";
-import { ScrollView } from "react-native-gesture-handler";
+import {
+  FlatList,
+  ImageBackground,
+  ImageProps,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from "react-native";
+import {
+  Layout,
+  Icon,
+  TopNavigationAction,
+  TopNavigation,
+  Divider,
+  Spinner,
+} from "@ui-kitten/components";
+import { RenderProp } from "@ui-kitten/components/devsupport";
+import PostItem, { PostType } from "../components/PostItem";
+import { CategoryItemProps } from "../components/CategoryItem";
+import { ApiService } from "../services/apiService";
+import { ButtonsProps, Filter } from "../components/Filter";
 
 const Posts = ({ navigation, route }: any) => {
   const { accessToken } = useAuthAccessToken();
+  const { subreddit }: { subreddit: CategoryItemProps } = route.params;
+  const [posts, setPosts] = useState<PostType[]>();
+  const [filter, setFilter] = useState<ButtonsProps["filter"]>("hot");
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const theme = useTheme();
+  const navigateBack = () => {
+    navigation.goBack();
+  };
 
-  const styles = StyleSheet.create({
-    input: {
-      marginVertical: 50,
-    },
-    container: {
-      flexGrow: 1,
-      backgroundColor: theme["color-basic-900"],
-      paddingHorizontal: 8,
-    },
-    cardContainer: {
-      width: "90%",
-      alignSelf: "center",
-      marginVertical: 16,
-      borderRadius: 6,
-      marginTop: 80,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      marginVertical: 8,
-      textAlign: "center",
-      marginHorizontal: 10,
-    },
-  });
+  const BackIcon: RenderProp<Partial<ImageProps>> = (props) => (
+    <Icon {...props} name="arrow-back" />
+  );
+
+  const BackAction = () => (
+    <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
+  );
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setLoading(true);
+        const res = await ApiService.getSubredditPosts(
+          subreddit.name.slice(2),
+          accessToken,
+          filter
+        );
+
+        const posts = res.map(({ data }: any): PostType => data);
+
+        //console.log("POSTS:", posts);
+        setPosts(posts);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, [filter]);
+
+  const RenderItem = useCallback(
+    ({ item, onPress }: { item: PostType; onPress: any }) => (
+      <PostItem post={item} onPress={onPress} />
+    ),
+    []
+  );
+
+  const onPostPress = (post: PostType) => {
+    navigation.navigate("Post", { post });
+  };
 
   return (
     <Layout style={styles.container}>
-      <ScrollView contentContainerStyle={{ alignItems: "center" }}>
-        <View style={styles.cardContainer}>
-          <Text style={{ textAlign: "center" }}>{route.params.titleName}</Text>
+      <SafeAreaView style={{ flex: 1 }}>
+        <TopNavigation
+          title={subreddit.name}
+          alignment="center"
+          accessoryLeft={BackAction}
+        />
+        <Divider />
+        <Header
+          backgroundImage={
+            subreddit.banner_img != ""
+              ? subreddit.banner_img
+              : subreddit.banner_background_image
+          }
+        />
+        <View style={{ paddingBottom: 15 }}>
+          <Filter filter={filter} setFilter={setFilter} />
         </View>
-      </ScrollView>
+        {loading ? (
+          <View style={{ flex: 1, alignItems: "center", paddingTop: 100 }}>
+            <Spinner size="giant" />
+          </View>
+        ) : (
+          <FlatList
+            data={posts}
+            renderItem={({ item }) => (
+              <RenderItem item={item} onPress={() => onPostPress(item)} />
+            )}
+            keyExtractor={(item) => item?.id}
+            //onRefresh={onRefresh}
+            //refreshing={refreshing}
+          />
+        )}
+      </SafeAreaView>
     </Layout>
   );
 };
+
+const Header = ({ backgroundImage }: any) => {
+  return (
+    <View>
+      <ImageBackground style={styles.image} source={{ uri: backgroundImage }} />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  image: {
+    width: "100%",
+    height: 150,
+    backgroundColor: "#2E3A59",
+  },
+});
 
 export default Posts;

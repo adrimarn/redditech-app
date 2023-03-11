@@ -270,7 +270,7 @@ export const ApiService = {
    */
   getSubreddit: async (limit: number = 100): Promise<CategoryItemProps[]> => {
     try {
-      const url = `https://www.reddit.com/subreddits/popular.json?limit=${limit}`;
+      const url = `https://www.reddit.com/subreddits/popular.json?limit=${limit}&raw_json=1`;
       const data = await fetchData(url);
 
       const {
@@ -283,6 +283,8 @@ export const ApiService = {
         description: data.public_description,
         subscribersCount: data.subscribers,
         url: data.url,
+        banner_img: data.banner_img,
+        banner_background_image: data.banner_background_image,
       }));
     } catch (error) {
       console.error(error);
@@ -339,7 +341,7 @@ export const ApiService = {
   getSubredditPosts: async (
     subredditName: string,
     accessToken: string,
-    where: "hot" | "new" | "random" | "rising",
+    where: "hot" | "new" | "random" | "rising" = "hot",
     limit: number = 10,
     before?: string,
     after?: string

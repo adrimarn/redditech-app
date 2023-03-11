@@ -58,6 +58,28 @@ function HomeStackScreen() {
   );
 }
 
+function DiscoverStackScreen() {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="Discover"
+        component={Discover}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Posts"
+        component={Posts}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Post"
+        component={Post}
+        options={{ headerShown: false }}
+      />
+    </HomeStack.Navigator>
+  );
+}
+
 export const AppStack = () => (
   <ModalProvider>
     <Tab.Navigator
@@ -65,7 +87,7 @@ export const AppStack = () => (
       screenOptions={{ headerShown: false }}
     >
       <Tab.Screen name="HomeStack" component={HomeStackScreen} />
-      <Tab.Screen name="Feed" component={Discover} />
+      <Tab.Screen name="DiscoverStack" component={DiscoverStackScreen} />
       <Tab.Screen name="Profile" component={Profile} />
       <Tab.Screen name="Search" component={Search} />
       <Tab.Screen name="Posts" component={Posts} />

@@ -1,5 +1,5 @@
 import React from "react";
-import { GestureResponderEvent, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Button, Layout } from "@ui-kitten/components";
 
 const buttons = [
@@ -25,9 +25,9 @@ const buttons = [
   },
 ];
 
-interface ButtonsProps {
+export interface ButtonsProps {
   filter: "new" | "hot" | "rising" | "random";
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
+  setFilter: (filter: ButtonsProps["filter"]) => void;
 }
 
 export const Filter = (props: ButtonsProps) => {
@@ -36,11 +36,13 @@ export const Filter = (props: ButtonsProps) => {
       {buttons.map((button) => {
         return (
           <Button
-            onPress={() => props.setFilter(button.value)}
+            onPress={() =>
+              props.setFilter(button.value as ButtonsProps["filter"])
+            }
             style={styles.button}
             size="small"
             key={button.title}
-            disabled={button.disabled}
+            disabled={button.value === props.filter}
           >
             {button.title}
           </Button>
