@@ -6,6 +6,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 export type PostType = {
   id: string;
   permalink: string;
+  num_comments: number;
   title: string;
   author: string;
   selftext: string;
@@ -15,7 +16,8 @@ export type PostType = {
   ups: number;
   downs: number;
   url: string;
-  created_utc: Date;
+  created_utc: Date ;
+  created: number;
   preview?: {
     images: [
       {

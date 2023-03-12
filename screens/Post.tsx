@@ -43,6 +43,10 @@ const ArrowDown: RenderProp<Partial<ImageProps>> = (props) => (
   <Feather {...props} name="arrow-down" size={24} color="#ff4500" />
 );
 
+const Comments: RenderProp<Partial<ImageProps>> = (props) => (
+  <Feather {...props} name="message-circle" size={24} color="#ff4500" />
+);
+
 const Post = ({ navigation, route }: any) => {
   const { accessToken } = useAuthAccessToken();
   const { post }: { post: PostType } = route.params;
@@ -115,10 +119,11 @@ const Post = ({ navigation, route }: any) => {
     console.log(post);
   }, []);
 
-  const changeFormatDate = (date: string) => {
-    let startDay = new Date(date).getDate();
-    let startMonth = new Date(date).getMonth();
-    let startYear = new Date(date).getFullYear();
+  const changeFormatDate = (date: number) => {
+    let startDay = new Date(date * 1000).getDate();
+    let startMonth = new Date(date * 1000).getMonth();
+    let startYear = new Date(date * 1000).getFullYear();
+
     return (
       <Text style={styles.date}>
         <Text style={styles.dateLabel}>Date:</Text>
@@ -131,8 +136,9 @@ const Post = ({ navigation, route }: any) => {
     return (
       <>
         {post.preview ? (
-          <View>
+          <View style={styles.imageView}>
             <ImageBackground
+              borderRadius={25}
               style={styles.imagePost}
               source={{ uri: post.preview?.images[0].source.url as string }}
             ></ImageBackground>
@@ -151,21 +157,26 @@ const Post = ({ navigation, route }: any) => {
             Posted by
             <Text style={styles.authorName}>{post.author}</Text>
           </Text>
-          {changeFormatDate(post.created_utc.toDateString())}
+          {post.created_utc && changeFormatDate(post.created as number)}
         </View>
 
         <Text style={styles.title}>{post.title}</Text>
+        <DisplayImageBackGroundPost />
+        <Text style={{textAlign: "center", color: theme["color-primary-500"], fontWeight: "200",marginVertical: 30}}>{post.selftext}</Text>
         <View style={styles.votes}>
           <View style={styles.number}>
-            <Text>{post.ups}</Text>
             <ArrowUp />
+            <Text>{post.ups}</Text>
           </View>
           <View style={styles.number}>
-            <Text>{post.downs}</Text>
             <ArrowDown />
+            <Text>{post.downs}</Text>
+          </View>
+          <View style={styles.number}>
+            <Comments />
+            <Text>{post.num_comments}</Text>
           </View>
         </View>
-        <DisplayImageBackGroundPost />
       </View>
     );
   };
@@ -205,14 +216,17 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
-  imagePost: {
-
-    margin: 0,
-    padding: 0,
-    width: "100%",
+  imageView: {
     display: "flex",
-    alignContent: "center",
     justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center",
+  },
+  imagePost: {
+    marginVertical: 10,
+    paddingVertical: 50,
+    paddingHorizontal: 50,
+    width: 350,
     height: 250,
   },
   title: {
