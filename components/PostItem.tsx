@@ -7,14 +7,18 @@ import { ApiService } from "../services/apiService";
 export type PostType = {
   id: string;
   permalink: string;
+  num_comments: number;
   title: string;
   author: string;
   selftext: string;
   subreddit?: string;
   subreddit_name_prefixed?: string;
   thumbnail: string;
+  ups: number;
+  downs: number;
   url: string;
-  created_utc: Date;
+  created_utc: Date ;
+  created: number;
   preview?: {
     images: [
       {
