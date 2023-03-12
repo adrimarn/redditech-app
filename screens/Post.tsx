@@ -162,7 +162,18 @@ const Post = ({ navigation, route }: any) => {
 
         <Text style={styles.title}>{post.title}</Text>
         <DisplayImageBackGroundPost />
-        <Text style={{textAlign: "center", color: theme["color-primary-500"], fontWeight: "200",marginVertical: 30}}>{post.selftext}</Text>
+        {post.selftext && (
+          <Text
+            style={{
+              textAlign: "center",
+              color: theme["color-primary-500"],
+              fontWeight: "200",
+              marginVertical: 30,
+            }}
+          >
+            {post.selftext}
+          </Text>
+        )}
         <View style={styles.votes}>
           <View style={styles.number}>
             <ArrowUp />
