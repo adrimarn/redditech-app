@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthAccessToken } from "../contexts/AuthContext";
 import {
   FlatList,
@@ -15,6 +15,8 @@ import {
   TopNavigation,
   Divider,
   Spinner,
+  Button,
+  Text,
 } from "@ui-kitten/components";
 import { RenderProp } from "@ui-kitten/components/devsupport";
 import PostItem, { PostType } from "../components/PostItem";
@@ -28,6 +30,9 @@ const Posts = ({ navigation, route }: any) => {
   const [posts, setPosts] = useState<PostType[]>();
   const [filter, setFilter] = useState<ButtonsProps["filter"]>("hot");
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [lastPostId, setLastPostId] = useState<string | undefined>(undefined);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   const navigateBack = () => {
     navigation.goBack();
@@ -41,38 +46,61 @@ const Posts = ({ navigation, route }: any) => {
     <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
   );
 
-  useEffect(() => {
-    async function fetchPosts() {
-      try {
-        setLoading(true);
-        const res = await ApiService.getSubredditPosts(
-          subreddit.name.slice(2),
-          accessToken,
-          filter
-        );
+  const handleScrollEnd = async () => {
+    await fetchPosts(true);
+  };
 
-        const posts = res.map(({ data }: any): PostType => data);
+  async function fetchPosts(refresh = false) {
+    if (isFetching) return;
+    try {
+      setIsFetching(true);
+      if (!refresh) setLoading(true);
+      const res = await ApiService.getSubredditPosts(
+        subreddit.name.slice(2),
+        accessToken,
+        filter,
+        10,
+        undefined,
+        lastPostId
+      );
 
-        //console.log("POSTS:", posts);
-        setPosts(posts);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
+      const posts = res.map(({ data }: any): PostType => data);
+      setPosts((prevState) => {
+        if (prevState) {
+          return [...prevState, ...posts];
+        }
+        return posts;
+      });
+      setLastPostId(posts[posts.length - 1].name);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+      setIsFetching(false);
     }
+  }
+
+  useEffect(() => {
     fetchPosts();
   }, [filter]);
 
-  const RenderItem = useCallback(
-    ({ item, onPress }: { item: PostType; onPress: any }) => (
-      <PostItem post={item} onPress={onPress} />
-    ),
-    []
+  const RenderItem = ({ item, onPress }: { item: PostType; onPress: any }) => (
+    <PostItem post={item} onPress={onPress} />
   );
 
   const onPostPress = (post: PostType) => {
     navigation.navigate("Post", { post });
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchPosts(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
@@ -90,6 +118,8 @@ const Posts = ({ navigation, route }: any) => {
               ? subreddit.banner_img
               : subreddit.banner_background_image
           }
+          subreddit={subreddit}
+          accessToken={accessToken}
         />
         <View style={{ paddingBottom: 15 }}>
           <Filter filter={filter} setFilter={setFilter} />
@@ -104,9 +134,10 @@ const Posts = ({ navigation, route }: any) => {
             renderItem={({ item }) => (
               <RenderItem item={item} onPress={() => onPostPress(item)} />
             )}
-            keyExtractor={(item) => item?.id}
-            //onRefresh={onRefresh}
-            //refreshing={refreshing}
+            keyExtractor={(item: PostType) => item?.id}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            onEndReached={handleScrollEnd}
           />
         )}
       </SafeAreaView>
@@ -114,11 +145,95 @@ const Posts = ({ navigation, route }: any) => {
   );
 };
 
-const Header = ({ backgroundImage }: any) => {
+const Header = ({
+  backgroundImage,
+  subreddit,
+  accessToken,
+}: {
+  backgroundImage: string;
+  subreddit: CategoryItemProps;
+  accessToken: string;
+}) => {
   return (
     <View>
-      <ImageBackground style={styles.image} source={{ uri: backgroundImage }} />
+      <ImageBackground style={styles.image} source={{ uri: backgroundImage }}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: backgroundImage ? "rgba(0,0,0,0.5)" : undefined,
+            paddingHorizontal: 10,
+          }}
+        >
+          <SubscribeButton
+            subredditName={subreddit.name}
+            accessToken={accessToken}
+          />
+          <View style={{ flex: 1, justifyContent: "flex-end" }}>
+            <Text
+              style={{
+                marginTop: 10,
+                textAlign: "center",
+                fontSize: 12,
+                alignSelf: "center",
+                paddingBottom: 10,
+                width: "100%",
+              }}
+              category="c1"
+            >
+              {subreddit.description}
+            </Text>
+          </View>
+        </View>
+      </ImageBackground>
     </View>
+  );
+};
+
+const SubscribeButton = ({
+  subredditName,
+  accessToken,
+}: {
+  subredditName: string;
+  accessToken: string;
+}) => {
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const buttonText = isSubscribed ? "Leave" : "Join";
+
+  const handleSubscribeClick = () => {
+    ApiService.subscribeToSubreddit(subredditName, accessToken)
+      .then(() => setIsSubscribed(true))
+      .catch((error) => console.error("Failed to subscribe:", error));
+  };
+
+  const handleUnsubscribeClick = () => {
+    ApiService.subscribeToSubreddit(subredditName, accessToken, "unsub")
+      .then(() => setIsSubscribed(false))
+      .catch((error) => console.error("Failed to unsubscribe:", error));
+  };
+
+  useEffect(() => {
+    ApiService.hasSubscribed(subredditName, accessToken)
+      .then((isUserSubscribed: boolean) => setIsSubscribed(isUserSubscribed))
+      .catch((error) =>
+        console.error("Failed to check subscription status:", error)
+      );
+  }, [subredditName, accessToken]);
+
+  return (
+    <Button
+      onPress={isSubscribed ? handleUnsubscribeClick : handleSubscribeClick}
+      style={{
+        marginVertical: 10,
+        width: 100,
+        alignSelf: "flex-end",
+        borderRadius: 20,
+      }}
+      appearance={isSubscribed ? "outline" : "filled"}
+      status={isSubscribed ? "control" : "primary"}
+      size="small"
+    >
+      {buttonText}
+    </Button>
   );
 };
 
@@ -129,7 +244,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: 150,
-    backgroundColor: "#2E3A59",
+    backgroundColor: "#272541",
   },
 });
 

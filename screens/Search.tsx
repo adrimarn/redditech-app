@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useAuthAccessToken } from "../contexts/AuthContext";
-import { StyleSheet, Image, View, FlatList, SafeAreaView } from "react-native";
-import { Layout, Card, Input, Text, Button } from "@ui-kitten/components";
-import { ApiService, dataInfoSubbredit } from "../services/apiService";
+import React, { useState } from "react";
+import { StyleSheet, View, FlatList, SafeAreaView } from "react-native";
+import { Layout, Input, Button } from "@ui-kitten/components";
+import { ApiService } from "../services/apiService";
+import { CategoryItem, CategoryItemProps } from "../components/CategoryItem";
 
 const Search = ({ navigation }: any) => {
-  const { accessToken } = useAuthAccessToken();
   const [subredditInput, setSubredditInput] = useState<string>();
-  const [subRedditInfo, setSubRedditInfo] = useState<
-    dataInfoSubbredit[] | undefined
-  >();
+  const [subRedditInfo, setSubRedditInfo] = useState<CategoryItemProps[]>([]);
   const [refreshing, setRefreshing] = React.useState(false);
   const [lastSubRedditId, setLastSubRedditId] = React.useState<
     string | undefined
@@ -57,99 +54,17 @@ const Search = ({ navigation }: any) => {
       }
       return data;
     });
-    setLastSubRedditId(data[data.length - 1].name);
+    setLastSubRedditId(data[data.length - 1].identifier);
     setLastSubRedditName(lastName);
     setIsLoading(false);
   };
 
-  const onPress = (titleName: string) => {
-    navigation.navigate("Posts", {
-      titleName: titleName,
-    });
+  const onPress = (subreddit: CategoryItemProps) => {
+    navigation.navigate("Posts", { subreddit });
   };
 
   const handleScrollEnd = async () => {
     await fetchSubReddit();
-  };
-  const renderItem = ({ item }: { item: dataInfoSubbredit }) => (
-    <Category item={item} />
-  );
-
-  const Category = ({ item }: { item: dataInfoSubbredit }) => {
-    const SubscribeButton = (props: any) => {
-      const [isSubscribed, setIsSubscribed] = useState(false);
-
-      const handleSubscribe = (subbreditName: string) => {
-        ApiService.subscribeToSubreddit(subbreditName, accessToken).then(() => {
-          setIsSubscribed(true);
-        });
-      };
-
-      const handleUnSubscribe = async (subbreditName: string) => {
-        ApiService.subscribeToSubreddit(
-          subbreditName,
-          accessToken,
-          "unsub"
-        ).then(() => {
-          setIsSubscribed(false);
-        });
-      };
-
-      useEffect(() => {
-        const result = ApiService.hasSubscribed(props.para1, accessToken);
-        result.then((data: boolean) => {
-          setIsSubscribed(data);
-        });
-      }, []);
-
-      if (isSubscribed) {
-        return (
-          <Button
-            onPress={() => handleUnSubscribe(props.para1)}
-            style={{ marginVertical: 10 }}
-          >
-            Unsubscribe
-          </Button>
-        );
-      } else {
-        return (
-          <Button
-            onPress={() => handleSubscribe(props.para1)}
-            style={{ marginVertical: 10 }}
-          >
-            Subscribe
-          </Button>
-        );
-      }
-    };
-
-    return (
-      <>
-        {item && (
-          <Card
-            onPress={() => onPress(item.display_name_prefixed)}
-            key={item.id}
-            style={styles.cardContainer}
-          >
-            <View style={styles.imgContainer}>
-              <Image
-                style={styles.img}
-                source={{
-                  uri: item.header_img ? item.header_img : undefined,
-                }}
-              />
-            </View>
-
-            <Text style={styles.icon}>{item.subscribers} subscribers</Text>
-            <Text>{item.user_is_subscriber}</Text>
-            <Text category="h6">{item.display_name_prefixed}</Text>
-            <Text>{item.public_description}</Text>
-
-            <SubscribeButton para1={item.display_name_prefixed} />
-          </Card>
-        )}
-      </>
-    );
   };
 
   return (
@@ -166,7 +81,13 @@ const Search = ({ navigation }: any) => {
         </View>
         <FlatList
           data={subRedditInfo}
-          renderItem={renderItem}
+          renderItem={({ item, index }) => (
+            <CategoryItem
+              item={item}
+              index={index}
+              onPress={() => onPress(item)}
+            />
+          )}
           keyExtractor={(item) => item.id}
           onEndReached={handleScrollEnd}
           onEndReachedThreshold={0.2}
@@ -182,7 +103,7 @@ export default Search;
 
 const styles = StyleSheet.create({
   input: {
-    marginVertical: 50,
+    marginVertical: 10,
   },
   container: {
     flex: 1,

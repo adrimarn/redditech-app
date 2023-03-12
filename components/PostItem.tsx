@@ -1,11 +1,21 @@
 import React, { useEffect } from "react";
 import { Text, Avatar } from "@ui-kitten/components";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ImageProps,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { ApiService } from "../services/apiService";
+import { RenderProp } from "@ui-kitten/components/devsupport";
+import { Feather } from "@expo/vector-icons";
+import theme from "../adrimarn-theme.json";
 
 export type PostType = {
   id: string;
+  name: string;
   permalink: string;
   num_comments: number;
   title: string;
@@ -17,7 +27,7 @@ export type PostType = {
   ups: number;
   downs: number;
   url: string;
-  created_utc: Date ;
+  created_utc: Date;
   created: number;
   preview?: {
     images: [
@@ -68,6 +78,47 @@ const PostItem = ({ post, onPress }: { post: PostType; onPress: any }) => {
     );
   };
 
+  const Footer = () => {
+    const ArrowUp: RenderProp<Partial<ImageProps>> = (props) => (
+      <Feather
+        {...props}
+        name="arrow-up"
+        size={24}
+        color={theme["color-primary-500"]}
+      />
+    );
+
+    const ArrowDown: RenderProp<Partial<ImageProps>> = (props) => (
+      <Feather {...props} name="arrow-down" size={24} color="#15eabd" />
+    );
+
+    const Comments: RenderProp<Partial<ImageProps>> = (props) => (
+      <Feather
+        {...props}
+        name="message-circle"
+        size={24}
+        color={theme["color-basic-100"]}
+        style={{transform: [{rotateY: '180deg'}]}}
+      />
+    );
+    return (
+      <View style={styles.votes}>
+        <View style={styles.number}>
+          <ArrowUp />
+          <Text style={{ marginLeft: 5 }}>{post.ups}</Text>
+        </View>
+        <View style={styles.number}>
+          <ArrowDown />
+          <Text style={{ marginLeft: 5 }}>{post.downs}</Text>
+        </View>
+        <View style={styles.number}>
+          <Comments />
+          <Text style={{ marginLeft: 5 }}>{post.num_comments}</Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <>
       <Animated.View
@@ -95,13 +146,18 @@ const PostItem = ({ post, onPress }: { post: PostType; onPress: any }) => {
             {post?.preview?.images?.[0].source.url ? (
               <PostImage />
             ) : (
-              <Text style={{ marginVertical: 20 }}>{post.selftext}</Text>
+              post?.selftext != "" && (
+                <Text style={{ marginVertical: 20 }}>
+                  {post.selftext.slice(0, 100)}...
+                </Text>
+              )
             )}
             <Text
               appearance="hint"
               category="c1"
             >{`Posted in ${post.subreddit_name_prefixed}`}</Text>
           </View>
+          <Footer />
         </TouchableOpacity>
       </Animated.View>
     </>
@@ -115,6 +171,19 @@ const styles = StyleSheet.create({
     width: "100%",
     marginVertical: 20,
     borderRadius: 25,
+  },
+  votes: {
+    marginBottom: 5,
+    display: "flex",
+    flexDirection: "row",
+  },
+  number: {
+    display: "flex",
+    marginRight: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
   },
 });
 

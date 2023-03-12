@@ -17,6 +17,7 @@ export interface CategoryItemProps {
   subscribersCount: number;
   banner_img: string;
   banner_background_image: string;
+  identifier: string;
 }
 
 function numberWithSpaces(x: number) {
@@ -75,7 +76,12 @@ const ItemView = ({
             <KText category="h5" style={styles.title}>
               {item.name}
             </KText>
-            <KText appearance="alternative" category="label" status="basic" style={styles.subtitle}>
+            <KText
+              appearance="alternative"
+              category="label"
+              status="basic"
+              style={styles.subtitle}
+            >
               {numberWithSpaces(item.subscribersCount)} members
             </KText>
           </View>

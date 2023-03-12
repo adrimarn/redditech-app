@@ -17,6 +17,7 @@ import {
   StyleSheet,
   View,
   ImageBackground,
+  ScrollView,
 } from "react-native";
 import { PostType } from "../components/PostItem";
 import { useAuthAccessToken } from "../contexts/AuthContext";
@@ -33,15 +34,25 @@ interface Comment {
 }
 
 const ArrowUp: RenderProp<Partial<ImageProps>> = (props) => (
-  <Feather {...props} name="arrow-up" size={24} color="#ff4500" />
+  <Feather
+    {...props}
+    name="arrow-up"
+    size={24}
+    color={theme["color-primary-500"]}
+  />
 );
 
 const ArrowDown: RenderProp<Partial<ImageProps>> = (props) => (
-  <Feather {...props} name="arrow-down" size={24} color="#ff4500" />
+  <Feather {...props} name="arrow-down" size={24} color="#15eabd" />
 );
 
 const Comments: RenderProp<Partial<ImageProps>> = (props) => (
-  <Feather {...props} name="message-circle" size={24} color="#ff4500" />
+  <Feather
+    {...props}
+    name="message-circle"
+    size={24}
+    color={theme["color-basic-100"]}
+  />
 );
 
 const Post = ({ navigation, route }: any) => {
@@ -109,21 +120,11 @@ const Post = ({ navigation, route }: any) => {
     </>
   );
 
-  useEffect(() => {
-    console.log(post);
-  }, []);
-
   const changeFormatDate = (date: number) => {
     let startDay = new Date(date * 1000).getDate();
     let startMonth = new Date(date * 1000).getMonth();
     let startYear = new Date(date * 1000).getFullYear();
-
-    return (
-      <Text style={styles.date}>
-        <Text style={styles.dateLabel}>Date:</Text>
-        {startDay}/{startMonth}/{startYear}
-      </Text>
-    );
+    return `${startDay}/${startMonth}/${startYear}`;
   };
 
   const DisplayImageBackGroundPost = () => {
@@ -148,38 +149,42 @@ const Post = ({ navigation, route }: any) => {
       <View style={styles.header}>
         <View style={styles.authorView}>
           <Text style={styles.author}>
-            Posted by
-            <Text style={styles.authorName}>{post.author}</Text>
+            Posted by <Text style={styles.authorName}>u/{post.author}</Text>
           </Text>
-          {post.created_utc && changeFormatDate(post.created as number)}
+          {post.created_utc && (
+            <Text style={styles.date}>{changeFormatDate(post.created)}</Text>
+          )}
         </View>
 
         <Text style={styles.title}>{post.title}</Text>
         <DisplayImageBackGroundPost />
         {post.selftext && (
-          <Text
-            style={{
-              textAlign: "center",
-              color: theme["color-primary-500"],
-              fontWeight: "200",
-              marginVertical: 30,
-            }}
-          >
-            {post.selftext}
-          </Text>
+          <ScrollView>
+            <Text
+              style={{
+                paddingHorizontal: 20,
+                textAlign: "center",
+                fontWeight: "300",
+                fontSize: 14,
+                marginVertical: 10,
+              }}
+            >
+              {post.selftext}
+            </Text>
+          </ScrollView>
         )}
         <View style={styles.votes}>
           <View style={styles.number}>
             <ArrowUp />
-            <Text>{post.ups}</Text>
+            <Text style={{ marginLeft: 5 }}>{post.ups}</Text>
           </View>
           <View style={styles.number}>
             <ArrowDown />
-            <Text>{post.downs}</Text>
+            <Text style={{ marginLeft: 5 }}>{post.downs}</Text>
           </View>
           <View style={styles.number}>
             <Comments />
-            <Text>{post.num_comments}</Text>
+            <Text style={{ marginLeft: 5 }}>{post.num_comments}</Text>
           </View>
         </View>
       </View>
@@ -195,7 +200,7 @@ const Post = ({ navigation, route }: any) => {
           accessoryLeft={BackAction}
         />
         <Divider />
-        <View>
+        <View style={{ backgroundColor: "#231f36" }}>
           <PostHeader />
         </View>
         <Divider />
@@ -235,7 +240,8 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   header: {
-    marginBottom: 20,
+    marginTop: 20,
+    marginBottom: 10,
   },
   imageView: {
     display: "flex",
@@ -283,20 +289,24 @@ const styles = StyleSheet.create({
   },
   date: {
     marginHorizontal: 10,
-    color: theme["color-primary-500"],
+    color: theme["color-basic-600"],
     fontSize: 10,
-    fontWeight: "bold",
   },
   dateLabel: {
     fontSize: 10,
+    fontWeight: "bold",
   },
   votes: {
+    marginTop: 5,
+    marginLeft: 20,
+    marginBottom: 5,
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-around",
+    //justifyContent: "space-around",
   },
   number: {
     display: "flex",
+    marginRight: 20,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

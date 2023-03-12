@@ -52,18 +52,6 @@ export type UserPreferencesDataType = {
   highlight_controversial: boolean;
 };
 
-//TODO: Duplicate type ?
-export type dataInfoSubbredit = {
-  title: string;
-  display_name_prefixed: string;
-  subscribers: string;
-  public_description: string;
-  header_img: string;
-  user_is_subscriber: string;
-  id: string;
-  name: string;
-};
-
 /**
  * Service that interacts with a Reddit API.
  */
@@ -172,12 +160,23 @@ export const ApiService = {
     before?: string,
     after?: string,
     limit: number = 25
-  ): Promise<dataInfoSubbredit[]> => {
+  ): Promise<CategoryItemProps[]> => {
     let url = `https://www.reddit.com/subreddits/search.json?q=${subredditName}&limit=${limit}`;
     if (before) url += `&before=${before}`;
     if (after) url += `&after=${after}`;
     const res = await fetchData(url);
-    return res.data.children.map((subreddit: any) => subreddit.data);
+
+    return res.data.children.map(({ data }: any) => ({
+      id: data.id,
+      name: data.display_name_prefixed,
+      identifier: data.name,
+      description: data.public_description,
+      subscribersCount: data.subscribers,
+      url: data.url,
+      banner_img: data.banner_img,
+      banner_background_image: data.banner_background_image,
+      subscribers: data.subscribers,
+    }));
   },
 
   /**

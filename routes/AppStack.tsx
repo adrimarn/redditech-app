@@ -36,6 +36,35 @@ const SearchIcon: RenderProp<Partial<ImageProps>> = (props) => (
 );
 
 const HomeStack = createStackNavigator();
+const DiscoverStack = createStackNavigator();
+const SearchStack = createStackNavigator();
+
+export const AppStack = () => (
+  <ModalProvider>
+    <Tab.Navigator
+      tabBar={(props) => <BottomTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
+      <Tab.Screen name="HomeStack" component={HomeStackScreen} />
+      <Tab.Screen name="DiscoverStack" component={DiscoverStackScreen} />
+      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Search" component={SearchStackScreen} />
+      <Tab.Screen name="Posts" component={Posts} />
+    </Tab.Navigator>
+  </ModalProvider>
+);
+
+const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, state }) => (
+  <BottomNavigation
+    selectedIndex={state.index}
+    onSelect={(index) => navigation.navigate(state.routeNames[index])}
+  >
+    <BottomNavigationTab icon={HomeIcon} />
+    <BottomNavigationTab icon={FeedIcon} />
+    <BottomNavigationTab icon={UserIcon} />
+    <BottomNavigationTab icon={SearchIcon} />
+  </BottomNavigation>
+);
 
 function HomeStackScreen() {
   return (
@@ -56,49 +85,49 @@ function HomeStackScreen() {
 
 function DiscoverStackScreen() {
   return (
-    <HomeStack.Navigator>
-      <HomeStack.Screen
+    <DiscoverStack.Navigator>
+      <DiscoverStack.Screen
         name="Discover"
         component={Discover}
         options={{ headerShown: false }}
       />
-      <HomeStack.Screen
+      <DiscoverStack.Screen
         name="Posts"
         component={Posts}
         options={{ headerShown: false }}
       />
-      <HomeStack.Screen
+      <DiscoverStack.Screen
         name="Post"
         component={Post}
         options={{ headerShown: false }}
       />
-    </HomeStack.Navigator>
+    </DiscoverStack.Navigator>
   );
 }
 
-export const AppStack = () => (
-  <ModalProvider>
-    <Tab.Navigator
-      tabBar={(props) => <BottomTabBar {...props} />}
-      screenOptions={{ headerShown: false }}
-    >
-      <Tab.Screen name="HomeStack" component={HomeStackScreen} />
-      <Tab.Screen name="DiscoverStack" component={DiscoverStackScreen} />
-      <Tab.Screen name="Profile" component={Profile} />
-      <Tab.Screen name="Search" component={Search} />
-      <Tab.Screen name="Posts" component={Posts} />
-    </Tab.Navigator>
-  </ModalProvider>
-);
-
-const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, state }) => (
-  <BottomNavigation
-    selectedIndex={state.index}
-    onSelect={(index) => navigation.navigate(state.routeNames[index])}
-  >
-    <BottomNavigationTab icon={HomeIcon} />
-    <BottomNavigationTab icon={FeedIcon} />
-    <BottomNavigationTab icon={UserIcon} />
-    <BottomNavigationTab icon={SearchIcon} />
-  </BottomNavigation>
-);
+function SearchStackScreen() {
+  return (
+    <SearchStack.Navigator>
+      <SearchStack.Screen
+        name="Search"
+        component={Search}
+        options={{ headerShown: false }}
+      />
+      <SearchStack.Screen
+        name="Discover"
+        component={Discover}
+        options={{ headerShown: false }}
+      />
+      <SearchStack.Screen
+        name="Posts"
+        component={Posts}
+        options={{ headerShown: false }}
+      />
+      <SearchStack.Screen
+        name="Post"
+        component={Post}
+        options={{ headerShown: false }}
+      />
+    </SearchStack.Navigator>
+  );
+}
