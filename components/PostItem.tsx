@@ -12,6 +12,8 @@ export type PostType = {
   subreddit?: string;
   subreddit_name_prefixed?: string;
   thumbnail: string;
+  ups: number;
+  downs: number;
   url: string;
   created_utc: Date;
   preview?: {

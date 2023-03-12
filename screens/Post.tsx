@@ -23,6 +23,7 @@ import { PostType } from "../components/PostItem";
 import { useAuthAccessToken } from "../contexts/AuthContext";
 import { ApiService } from "../services/apiService";
 import theme from "../adrimarn-theme.json";
+import { Feather } from "@expo/vector-icons";
 
 interface Comment {
   id: string;
@@ -33,6 +34,14 @@ interface Comment {
   };
   data: Comment;
 }
+
+const ArrowUp: RenderProp<Partial<ImageProps>> = (props) => (
+  <Feather {...props} name="arrow-up" size={24} color="#ff4500" />
+);
+
+const ArrowDown: RenderProp<Partial<ImageProps>> = (props) => (
+  <Feather {...props} name="arrow-down" size={24} color="#ff4500" />
+);
 
 const Post = ({ navigation, route }: any) => {
   const { accessToken } = useAuthAccessToken();
@@ -106,35 +115,66 @@ const Post = ({ navigation, route }: any) => {
     console.log(post);
   }, []);
 
+  const changeFormatDate = (date: string) => {
+    let startDay = new Date(date).getDate();
+    let startMonth = new Date(date).getMonth();
+    let startYear = new Date(date).getFullYear();
+    return (
+      <Text style={styles.date}>
+        <Text style={styles.dateLabel}>Date:</Text>
+        {startDay}/{startMonth}/{startYear}
+      </Text>
+    );
+  };
+
   const DisplayImageBackGroundPost = () => {
     return (
-      <View>
-        <ImageBackground
-          style={styles.imagePost}
-          source={{ uri: post.preview?.images[0].source.url as string }}
-        />
-        <View>
-          <Text style={styles.title}>{post.title}</Text>
-        </View>
-      </View>
+      <>
+        {post.preview ? (
+          <View>
+            <ImageBackground
+              style={styles.imagePost}
+              source={{ uri: post.preview?.images[0].source.url as string }}
+            ></ImageBackground>
+          </View>
+        ) : (
+          ""
+        )}
+      </>
     );
   };
   const PostHeader = () => {
     return (
       <View style={styles.header}>
-        <DisplayImageBackGroundPost />
-        <View style={styles.author}>
-          <Text style={styles.authorText}>{post.author}</Text>
+        <View style={styles.authorView}>
+          <Text style={styles.author}>
+            Posted by
+            <Text style={styles.authorName}>{post.author}</Text>
+          </Text>
+          {changeFormatDate(post.created_utc.toDateString())}
         </View>
+
+        <Text style={styles.title}>{post.title}</Text>
+        <View style={styles.votes}>
+          <View style={styles.number}>
+            <Text>{post.ups}</Text>
+            <ArrowUp />
+          </View>
+          <View style={styles.number}>
+            <Text>{post.downs}</Text>
+            <ArrowDown />
+          </View>
+        </View>
+        <DisplayImageBackGroundPost />
       </View>
     );
   };
 
   return (
     <Layout style={{ flex: 1 }}>
-      <SafeAreaView>
+      <SafeAreaView style={{ flex: 1 }}>
         <TopNavigation
-          title="Post"
+          title={post.subreddit_name_prefixed}
           alignment="center"
           accessoryLeft={BackAction}
         />
@@ -166,25 +206,65 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   imagePost: {
+  
     margin: 0,
     padding: 0,
     width: "100%",
-    height: 200,
-    opacity: 0.4,
-  },
-  author: {
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: [{ translateX: -50 }, { translateY: -50 }],
-  },
-  authorText: {
-    color: "#fff",
-    fontWeight: "bold",
+    display: "flex",
+    alignContent: "center",
+    justifyContent: "center",
+    height: 250,
   },
   title: {
-    marginTop: 10,
+    textAlign: "center",
+    padding: 10,
+    fontWeight: "bold",
+  },
+  authorView: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 25,
+  },
+  author: {
+    marginVertical: 1,
+    fontWeight: "bold",
+    fontSize: 10,
+    margin: 10,
+  },
+  authorName: {
+    marginHorizontal: 50,
+    fontWeight: "bold",
+    fontSize: 10,
     color: theme["color-primary-500"],
+  },
+  postedBy: {
+    color: theme["color-primary-500"],
+    fontWeight: "100",
+  },
+  imageTitleSubReddit: {
+    paddingVertical: 2,
+    color: theme["color-primary-500"],
+  },
+  date: {
+    marginHorizontal: 10,
+    color: theme["color-primary-500"],
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  dateLabel: {
+    fontSize: 10,
+  },
+  votes: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  number: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     textAlign: "center",
   },
 });

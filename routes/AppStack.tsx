@@ -35,9 +35,10 @@ const SearchIcon: RenderProp<Partial<ImageProps>> = (props) => (
   <Feather {...props} name="search" size={24} color="#ff4500" />
 );
 
-// const PostsIcon: RenderProp<Partial<ImageProps>> = (props) => (
-//   <Icon {...props} name="message-square-outline" />
-// );
+
+
+
+
 
 const HomeStack = createStackNavigator();
 
