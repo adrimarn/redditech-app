@@ -75,7 +75,7 @@ const ItemView = ({
             <KText category="h5" style={styles.title}>
               {item.name}
             </KText>
-            <KText appearance="hint" category="s1" style={styles.subtitle}>
+            <KText appearance="alternative" category="label" status="basic" style={styles.subtitle}>
               {numberWithSpaces(item.subscribersCount)} members
             </KText>
           </View>
@@ -107,14 +107,16 @@ const styles = StyleSheet.create({
   image: {
     height: 150,
     width: "100%",
+    backgroundColor: "rgba(38,36,62,1)",
+    borderRadius: 25,
   },
   imageStyle: {
-    borderRadius: 8,
+    borderRadius: 25,
   },
   text: {
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(38,36,62,0.20)",
     flex: 1,
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 25,
   },
 });

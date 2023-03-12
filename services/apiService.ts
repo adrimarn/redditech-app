@@ -341,7 +341,7 @@ export const ApiService = {
   getSubredditPosts: async (
     subredditName: string,
     accessToken: string,
-    where: "hot" | "new" | "random" | "rising" = "hot",
+    where: "hot" | "new" | "best" | "rising" | "top" = "hot",
     limit: number = 10,
     before?: string,
     after?: string
@@ -357,14 +357,13 @@ export const ApiService = {
     accessToken: string,
     permalink: string
   ): Promise<any> => {
-    const url = `https://oauth.reddit.com${permalink}&raw_json=1`;
-    console.log("url:", url);
+    const url = `https://oauth.reddit.com${permalink}?raw_json=1`;
     return await fetchData(url, accessToken);
   },
 
   getUserAvatar: async (username: string) => {
     const response = await fetchData(
-      `https://www.reddit.com/user/${username}/about.json`
+      `https://www.reddit.com/user/${username}/about.json?raw_json=1`
     );
     return response.data.icon_img;
   },

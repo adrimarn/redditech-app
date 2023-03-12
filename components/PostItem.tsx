@@ -1,7 +1,8 @@
-import React from "react";
-import { Card, Text, Avatar } from "@ui-kitten/components";
-import { Image, StyleSheet, View } from "react-native";
+import React, { useEffect } from "react";
+import { Text, Avatar } from "@ui-kitten/components";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+import { ApiService } from "../services/apiService";
 
 export type PostType = {
   id: string;
@@ -26,57 +27,79 @@ export type PostType = {
 };
 
 const PostItem = ({ post, onPress }: { post: PostType; onPress: any }) => {
-  const ImageHeader = () => (
+  const PostImage = () => (
     <Image
       style={styles.image}
       source={{ uri: post.preview?.images[0].source.url }}
     />
   );
 
-  const Footer = () => (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        margin: 16,
-      }}
-    >
-      <Avatar
-        source={{ uri: "https://i.pravatar.cc/80" }}
-        style={{ marginRight: 8 }}
-      />
-      <Text category="s1">{post.author}</Text>
-    </View>
-  );
+  const Header = () => {
+    const [avatar, setAvatar] = React.useState<string | undefined>();
+    useEffect(() => {
+      async function getAvatar() {
+        try {
+          const avatarUrl = await ApiService.getUserAvatar(post.author);
+          setAvatar(avatarUrl);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getAvatar();
+    }, []);
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <Avatar
+          source={{ uri: avatar }}
+          style={{ marginRight: 8 }}
+          size={"small"}
+        />
+        <Text category="s1">{post.author}</Text>
+      </View>
+    );
+  };
 
   return (
     <>
-      <Card
-        style={{ margin: 10 }}
-        header={
-          post?.preview?.images?.[0].source.url ? <ImageHeader /> : undefined
-        }
-        footer={<Footer />}
-        onPress={onPress}
+      <Animated.View
+        style={{
+          margin: 10,
+          backgroundColor: "#26243E",
+          borderRadius: 25,
+          padding: 20,
+        }}
+        entering={FadeIn?.delay?.(50)?.duration(300)}
       >
-        <Animated.View
-          style={{
-            flexDirection: "column",
-            padding: 0,
-            marginTop: 10,
-            marginBottom: 20,
-          }}
-          entering={FadeIn?.delay?.(50)?.duration(300)}
-        >
-          <Text style={{ marginBottom: 8 }} category="h6">
-            {post.title}
-          </Text>
-          <Text
-            appearance="hint"
-            category="c1"
-          >{`Posted in ${post.subreddit_name_prefixed}`}</Text>
-        </Animated.View>
-      </Card>
+        <TouchableOpacity onPress={onPress}>
+          <Header />
+          <View
+            style={{
+              flexDirection: "column",
+              padding: 0,
+              marginTop: 10,
+              marginBottom: 20,
+            }}
+          >
+            <Text style={{ marginBottom: 8 }} category="h6">
+              {post.title}
+            </Text>
+            {post?.preview?.images?.[0].source.url ? (
+              <PostImage />
+            ) : (
+              <Text style={{ marginVertical: 20 }}>{post.selftext}</Text>
+            )}
+            <Text
+              appearance="hint"
+              category="c1"
+            >{`Posted in ${post.subreddit_name_prefixed}`}</Text>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
     </>
   );
 };
@@ -86,8 +109,8 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 170,
     width: "100%",
-    marginVertical: -16,
-    marginBottom: 0,
+    marginVertical: 20,
+    borderRadius: 25,
   },
 });
 

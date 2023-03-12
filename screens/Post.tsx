@@ -10,7 +10,7 @@ import {
   Avatar,
 } from "@ui-kitten/components";
 import { RenderProp } from "@ui-kitten/components/devsupport";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ImageProps, SafeAreaView, StyleSheet, View } from "react-native";
 import { useAuthAccessToken } from "../contexts/AuthContext";
 import { ApiService } from "../services/apiService";
@@ -19,9 +19,7 @@ interface Comment {
   id: string;
   body: string;
   replies?: Comment[];
-  user: {
-    avatarUrl: string;
-  };
+  author: string;
   data: Comment;
 }
 
@@ -69,7 +67,7 @@ const Post = ({ navigation, route }: any) => {
       <ListItem
         title={comment.body}
         accessoryLeft={() => (
-          <Avatar size="small" source={{ uri: "https://i.pravatar.cc/80" }} />
+          <UserAvatar size="small" author={comment.author} />
         )}
       />
       {comment.replies && (
@@ -80,10 +78,7 @@ const Post = ({ navigation, route }: any) => {
               title={reply.body}
               style={{ paddingLeft: 40 }}
               accessoryLeft={() => (
-                <Avatar
-                  size="small"
-                  source={{ uri: "https://i.pravatar.cc/80" }}
-                />
+                <UserAvatar size="small" author={reply.author} />
               )}
             />
           )}
@@ -118,6 +113,22 @@ const Post = ({ navigation, route }: any) => {
       </SafeAreaView>
     </Layout>
   );
+};
+
+const UserAvatar = (props: any) => {
+  const [avatar, setAvatar] = React.useState<string | undefined>();
+  useEffect(() => {
+    async function getAvatar() {
+      try {
+        const avatarUrl = await ApiService.getUserAvatar(props.author);
+        setAvatar(avatarUrl);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getAvatar();
+  }, []);
+  return <Avatar source={{ uri: avatar }} {...props} />;
 };
 
 export default Post;

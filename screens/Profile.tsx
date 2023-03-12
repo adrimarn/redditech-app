@@ -33,7 +33,6 @@ const UserProfile = () => {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "#222B45",
     },
     avatar: {
       width: 150,
@@ -45,7 +44,6 @@ const UserProfile = () => {
       fontSize: 28,
       fontWeight: "bold",
       marginBottom: 10,
-      color: theme["text-basic-color"],
       textAlign: "center",
     },
     description: {
@@ -55,7 +53,6 @@ const UserProfile = () => {
       textAlign: "center",
     },
     divider: {
-      backgroundColor: theme["border-basic-color-3"],
       marginVertical: 10,
     },
     editButton: {
@@ -69,9 +66,7 @@ const UserProfile = () => {
       position: "absolute",
     },
     preferenceStyle: {
-      marginBottom: "8%",
-      marginTop: "5%",
-      left: "29%",
+      textAlign: "center",
     },
     radioButtons: {
       left: "350%",
@@ -143,7 +138,7 @@ const UserProfile = () => {
           style={{
             flex: 1,
             padding: 16,
-            backgroundColor: "#182438",
+            backgroundColor: "#272541",
             borderRadius: 40,
           }}
         >
@@ -151,7 +146,7 @@ const UserProfile = () => {
             Préférences
           </Text>
           <List
-            style={{ backgroundColor: "rgba(52, 52, 52, 0)" }}
+            style={{ backgroundColor: "#272541" }}
             data={[
               {
                 title: "Private messages",
@@ -216,7 +211,7 @@ const UserProfile = () => {
                   <ListItem
                     style={{
                       marginTop: "5%",
-                      backgroundColor: "rgba(52, 52, 52, 0)",
+                      backgroundColor: "#272541",
                     }}
                     title={item.title}
                     accessoryRight={() => (

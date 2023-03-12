@@ -20,19 +20,19 @@ import Post from "../screens/Post";
 const Tab = createBottomTabNavigator();
 
 const HomeIcon: RenderProp<Partial<ImageProps>> = (props) => (
-  <Feather {...props} name="home" size={24} color="#ff4500" />
+  <Feather {...props} name="home" size={24} color="#FD744C" />
 );
 
 const FeedIcon: RenderProp<Partial<ImageProps>> = (props) => (
-  <Feather {...props} name="compass" size={24} color="#ff4500" />
+  <Feather {...props} name="compass" size={24} color="#FD744C" />
 );
 
 const UserIcon: RenderProp<Partial<ImageProps>> = (props) => (
-  <Feather {...props} name="user" size={24} color="#ff4500" />
+  <Feather {...props} name="user" size={24} color="#FD744C" />
 );
 
 const SearchIcon: RenderProp<Partial<ImageProps>> = (props) => (
-  <Feather {...props} name="search" size={24} color="#ff4500" />
+  <Feather {...props} name="search" size={24} color="#FD744C" />
 );
 
 // const PostsIcon: RenderProp<Partial<ImageProps>> = (props) => (

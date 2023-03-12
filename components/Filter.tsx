@@ -2,33 +2,29 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { Button, Layout } from "@ui-kitten/components";
 
-const buttons = [
-  {
-    title: "BEST",
-    value: "hot",
-    disabled: false,
-  },
-  {
-    title: "CONTROVERSIAL",
-    value: "rising",
-    disabled: false,
-  },
-  {
-    title: "NEW",
-    value: "new",
-    disabled: false,
-  },
-  {
-    title: "RANDOM",
-    value: "random",
-    disabled: false,
-  },
-];
-
 export interface ButtonsProps {
-  filter: "new" | "hot" | "rising" | "random";
+  filter: "new" | "hot" | "rising" | "top";
   setFilter: (filter: ButtonsProps["filter"]) => void;
 }
+
+const buttons: { title: string; value: ButtonsProps["filter"] }[] = [
+  {
+    title: "Hot",
+    value: "hot",
+  },
+  {
+    title: "New",
+    value: "new",
+  },
+  {
+    title: "Top",
+    value: "top",
+  },
+  {
+    title: "Rising",
+    value: "rising",
+  },
+];
 
 export const Filter = (props: ButtonsProps) => {
   return (
@@ -36,13 +32,12 @@ export const Filter = (props: ButtonsProps) => {
       {buttons.map((button) => {
         return (
           <Button
-            onPress={() =>
-              props.setFilter(button.value as ButtonsProps["filter"])
-            }
+            onPress={() => props.setFilter(button.value)}
             style={styles.button}
             size="small"
+            status={button.value === props.filter ? "primary" : "control"}
+            appearance={button.value === props.filter ? "filled" : "outline"}
             key={button.title}
-            disabled={button.value === props.filter}
           >
             {button.title}
           </Button>
@@ -62,6 +57,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     marginTop: 15,
     borderRadius: 20,
+    borderWidth: 0,
+    borderColor: "transparent",
   },
   controlContainer: {
     borderRadius: 4,
