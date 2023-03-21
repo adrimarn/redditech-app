@@ -50,8 +50,9 @@ const Posts = ({ navigation, route }: any) => {
     await fetchPosts(true);
   };
 
-  async function fetchPosts(refresh = false) {
+  async function fetchPosts(refresh = false, reset = false) {
     if (isFetching) return;
+    const lastId = reset ? undefined: lastPostId
     try {
       setIsFetching(true);
       if (!refresh) setLoading(true);
@@ -61,12 +62,12 @@ const Posts = ({ navigation, route }: any) => {
         filter,
         10,
         undefined,
-        lastPostId
+        lastId
       );
 
       const posts = res.map(({ data }: any): PostType => data);
       setPosts((prevState) => {
-        if (prevState) {
+        if (prevState && !reset) {
           return [...prevState, ...posts];
         }
         return posts;
@@ -81,7 +82,7 @@ const Posts = ({ navigation, route }: any) => {
   }
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(undefined, true);
   }, [filter]);
 
   const RenderItem = ({ item, onPress }: { item: PostType; onPress: any }) => (
@@ -146,10 +147,10 @@ const Posts = ({ navigation, route }: any) => {
 };
 
 const Header = ({
-  backgroundImage,
-  subreddit,
-  accessToken,
-}: {
+                  backgroundImage,
+                  subreddit,
+                  accessToken,
+                }: {
   backgroundImage: string;
   subreddit: CategoryItemProps;
   accessToken: string;
@@ -190,9 +191,9 @@ const Header = ({
 };
 
 const SubscribeButton = ({
-  subredditName,
-  accessToken,
-}: {
+                           subredditName,
+                           accessToken,
+                         }: {
   subredditName: string;
   accessToken: string;
 }) => {

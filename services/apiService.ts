@@ -258,7 +258,7 @@ export const ApiService = {
       return Array.from(randomIndexes).map((index) => subreddits[index]);
     } catch (error) {
       console.log(error);
-      throw error;
+      throw new Error("Error getting random subreddits");
     }
   },
 
@@ -287,7 +287,7 @@ export const ApiService = {
       }));
     } catch (error) {
       console.error(error);
-      throw error;
+      throw new Error("Error getting subreddits");
     }
   },
 
